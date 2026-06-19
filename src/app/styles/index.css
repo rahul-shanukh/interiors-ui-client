@@ -1,0 +1,129 @@
+/* frontend\src\index.css */
+
+/* ✅ ALL @imports MUST be first */
+@import "tailwindcss";
+
+/* Tell Tailwind v4 to scan these files */
+@source "../src/**/*.{ts,tsx}";
+
+.logo-glow {
+  background: linear-gradient(90deg, #1f2937, #6b7280, #1f2937);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  animation: shine 5s linear infinite;
+}
+
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* Global reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Root typography */
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Body layout */
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #ffffff;
+  color: #111827;
+}
+
+/* Links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Buttons */
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.footer-gradient {
+  background: linear-gradient(
+    120deg,
+    rgba(99, 102, 241, 0.15),
+    rgba(59, 130, 246, 0.15),
+    rgba(168, 85, 247, 0.15),
+    rgba(99, 102, 241, 0.15)
+  );
+  background-size: 300% 300%;
+  animation: gradientMove 18s ease infinite;
+}
+
+.footer-link {
+  position: relative;
+  display: inline-block;
+}
+
+.footer-link::after {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  left: 0;
+  bottom: -2px;
+  background: #6366f1;
+  transition: width 0.3s ease;
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
+
+/* ── Kanban Board additions ── */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+}
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
