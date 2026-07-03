@@ -5,7 +5,7 @@ export const CalculatorLayout = () => {
   return (
     <div className="min-h-screen bg-[#fcfbf9]">
       {/* Premium Responsive Header */}
-      <header className="border-b border-[#13503B]/5 bg-white/70 backdrop-blur-md sticky top-0 z-40 transition-all duration-300">
+      <header className="border-b border-[#13503B]/5 bg-white transition-all duration-300">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="text-center sm:text-left">

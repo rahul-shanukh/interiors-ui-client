@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, ChevronRight, Calculator, Sparkles, User, Phone, Mail, MapPin, Search, ChevronDown, Loader2, X } from "lucide-react";
+import { CheckCircle2, ChevronRight, ArrowLeft, Calculator, Sparkles, User, Phone, Mail, MapPin, Search, ChevronDown, Loader2, X } from "lucide-react";
 import { COUNTRY_CODES } from "./countryCodes";
 import { useQuote } from "./useQuote";
 import type { QuoteRequest, CustomerDetails } from "./types";
@@ -488,36 +488,27 @@ export const KitchenCalculator: React.FC = () => {
               </div>
             )}
 
-            {/* 6. Footer Navigation Buttons (Hidden on quote screen & result screen) */}
-            {currentStep < 2 && (
-              <div className="mt-auto pt-10 flex justify-between items-center">
+            {/* 6. Footer Navigation Buttons (Hidden on result screen) */}
+            {currentStep < 4 && (
+              <div className="mt-auto pt-10 flex justify-between items-center w-full">
                 <button
                   onClick={handleBack}
-                  className="text-gray-400 font-bold tracking-widest text-xs hover:text-[#13503B] transition-colors uppercase"
+                  className="group flex items-center gap-2 border border-gray-200 text-gray-500 hover:text-[#13503B] hover:border-[#13503B] px-6 py-3.5 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-gray-50/50 active:scale-95 cursor-pointer shadow-sm"
                 >
-                  ← GO BACK
+                  <ArrowLeft size={14} className="transition-transform group-hover:-translate-x-0.5" />
+                  GO BACK
                 </button>
 
-                <button
-                  onClick={handleNext}
-                  disabled={currentStep === 0 && !selectedLayoutId}
-                  className="group flex items-center gap-2 bg-[#13503B] text-white px-8 py-4 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-[#0d3528] shadow-xl shadow-[#13503B]/20 disabled:opacity-30 disabled:pointer-events-none"
-                >
-                  CONTINUE
-                  <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
-                </button>
-              </div>
-            )}
-
-            {/* If on Step 2 (Package Selection), only show Back button to allow manual step reversal. The select triggers next step automatically. */}
-            {currentStep === 2 && (
-              <div className="mt-auto pt-10 flex justify-start items-center">
-                <button
-                  onClick={handleBack}
-                  className="text-gray-400 font-bold tracking-widest text-xs hover:text-[#13503B] transition-colors uppercase"
-                >
-                  ← GO BACK
-                </button>
+                {currentStep < 2 && (
+                  <button
+                    onClick={handleNext}
+                    disabled={currentStep === 0 && !selectedLayoutId}
+                    className="group flex items-center gap-2 bg-[#13503B] text-white px-8 py-3.5 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-[#0d3528] shadow-xl shadow-[#13503B]/20 disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
+                  >
+                    CONTINUE
+                    <ChevronRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                )}
               </div>
             )}
 

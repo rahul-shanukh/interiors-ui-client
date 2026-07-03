@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, ChevronRight, Calculator, Loader2, Sparkles, Phone, User, Mail, Download, X, MapPin, ChevronDown, Search } from "lucide-react";
+import { CheckCircle2, ChevronRight, ArrowLeft, Calculator, Loader2, Sparkles, Phone, User, Mail, Download, X, MapPin, ChevronDown, Search } from "lucide-react";
 import type {
   CalculatorBuildData,
   RoomCounts,
@@ -22,6 +22,7 @@ const BHK_ROOM_CONFIGS: Record<
   {
     defaults: RoomCounts;
     maxLiving?: number;
+    maxKitchen?: number;
     maxBedrooms: number;
     maxBathrooms: number;
     maxDining: number;
@@ -29,34 +30,79 @@ const BHK_ROOM_CONFIGS: Record<
   }
 > = {
   "1 BHK": {
-    defaults: { living: 1, kitchen: 1, bedroom: 1, bathroom: 1, dining: 0 },
+    defaults: {
+      living: 1,
+      kitchen: 1,
+      bedroom: 1,
+      bathroom: 1,
+      dining: 0,
+    },
+    maxLiving: 2,
+    maxKitchen: 2,
     maxBedrooms: 1,
     maxBathrooms: 1,
     maxDining: 1,
-    areaOptions: ["Below 800 sq. ft.", "Above 800 sq. ft."],
+    areaOptions: [
+      "Below 800 sq. ft.",
+      "Above 800 sq. ft.",
+    ],
   },
+
   "2 BHK": {
-    defaults: { living: 1, kitchen: 1, bedroom: 2, bathroom: 2, dining: 1 },
+    defaults: {
+      living: 1,
+      kitchen: 1,
+      bedroom: 2,
+      bathroom: 2,
+      dining: 1,
+    },
     maxLiving: 2,
+    maxKitchen: 2,
     maxBedrooms: 2,
     maxBathrooms: 2,
     maxDining: 2,
-    areaOptions: ["Below 800 sq. ft.", "Above 800 sq. ft."],
+    areaOptions: [
+      "Below 800 sq. ft.",
+      "Above 800 sq. ft.",
+    ],
   },
+
   "3 BHK": {
-    defaults: { living: 1, kitchen: 1, bedroom: 3, bathroom: 3, dining: 1 },
+    defaults: {
+      living: 1,
+      kitchen: 1,
+      bedroom: 3,
+      bathroom: 3,
+      dining: 1,
+    },
     maxLiving: 2,
+    maxKitchen: 2,
     maxBedrooms: 3,
     maxBathrooms: 3,
     maxDining: 2,
-    areaOptions: ["Below 1200 sq. ft.", "Above 1200 sq. ft."],
+    areaOptions: [
+      "Below 1200 sq. ft.",
+      "Above 1200 sq. ft.",
+    ],
   },
+
   "4+ BHK / Villa": {
-    defaults: { living: 1, kitchen: 1, bedroom: 4, bathroom: 4, dining: 1 },
-    maxBedrooms: 4,
-    maxBathrooms: 4,
-    maxDining: 2,
-    areaOptions: ["Below 1600 sq. ft.", "Above 1600 sq. ft."],
+    defaults: {
+      living: 1,
+      kitchen: 1,
+      bedroom: 4,
+      bathroom: 4,
+      dining: 1,
+    },
+    maxLiving: 10,
+    maxKitchen: 10,
+    maxBedrooms: 10,
+    maxBathrooms: 10,
+    maxDining: 10,
+    areaOptions: [
+      "Below 1600 sq. ft.",
+      "Above 1600 sq. ft.",
+    ],
   },
 };
 
@@ -169,7 +215,6 @@ export const FullHomeCalculator = () => {
         <div className={`p-8 md:p-12 ${step === 5 ? "" : "min-h-[500px]"} flex flex-col`}>
           {step === 1 && (
             <Step1Bhk
-              key={buildData.bhkType ?? "none"}
               current={buildData.bhkType}
               areaSize={buildData.areaSize}
               areaOptions={buildData.bhkType ? BHK_ROOM_CONFIGS[buildData.bhkType]?.areaOptions : []}
@@ -211,23 +256,24 @@ export const FullHomeCalculator = () => {
             <Step5Result price={estimatedPrice} />
           )}
 
-          {step < 4 && (
-            <div className="mt-auto pt-10 flex justify-between items-center">
+          {step < 5 && (
+            <div className="mt-auto pt-10 flex justify-between items-center w-full">
               <button
                 onClick={handleBack}
-                className="text-gray-400 font-bold tracking-widest text-xs hover:text-[#13503B] transition-colors"
+                className="group flex items-center gap-2 border border-gray-200 text-gray-500 hover:text-[#13503B] hover:border-[#13503B] px-6 py-3.5 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-gray-50/50 active:scale-95 cursor-pointer shadow-sm"
               >
-                ← GO BACK
+                <ArrowLeft size={14} className="transition-transform group-hover:-translate-x-0.5" />
+                GO BACK
               </button>
 
               {(step === 1 || step === 2) && (
                 <button
                   onClick={handleNext}
                   disabled={step === 1 ? (!buildData.bhkType || !buildData.areaSize) : false}
-                  className="group flex items-center gap-2 bg-[#13503B] text-white px-8 py-4 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-[#0d3528] shadow-xl shadow-[#13503B]/20 disabled:opacity-30 disabled:pointer-events-none"
+                  className="group flex items-center gap-2 bg-[#13503B] text-white px-8 py-3.5 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-[#0d3528] shadow-xl shadow-[#13503B]/20 disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
                 >
                   CONTINUE
-                  <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
+                  <ChevronRight size={14} className="transition-transform group-hover:translate-x-0.5" />
                 </button>
               )}
             </div>
@@ -312,7 +358,7 @@ const Step1Bhk = ({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white/70 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full shadow-[0_30px_70px_rgba(19,80,59,0.08),inset_0_1px_1px_rgba(255,255,255,0.5)] border border-white/40 animate-scaleIn text-left relative"
+            className="bg-white rounded-3xl p-8 max-w-md w-full shadow-[0_30px_70px_rgba(19,80,59,0.08),inset_0_1px_1px_rgba(255,255,255,0.5)] border border-white/40 animate-scaleIn text-left relative"
           >
             <button
               onClick={() => setShowModal(false)}
@@ -378,7 +424,7 @@ const Step1Bhk = ({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full shadow-[0_30px_70px_rgba(19,80,59,0.12),inset_0_1px_1px_rgba(255,255,255,0.6)] border border-white/50 animate-scaleIn text-left relative"
+            className="bg-white rounded-3xl p-8 max-w-md w-full shadow-[0_30px_70px_rgba(19,80,59,0.12),inset_0_1px_1px_rgba(255,255,255,0.6)] border border-white/50 animate-scaleIn text-left relative"
           >
             <button
               onClick={() => setShowInfoPopup(false)}
@@ -425,6 +471,7 @@ const Step2Rooms = ({
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const config = bhkType ? BHK_ROOM_CONFIGS[bhkType] : null;
   const maxLiving = config?.maxLiving ?? 99;
+  const maxKitchen = config?.maxKitchen ?? 99;
   const maxBedrooms = config?.maxBedrooms ?? 99;
   const maxBathrooms = config?.maxBathrooms ?? 99;
   const maxDining = config?.maxDining ?? 99;
@@ -432,6 +479,9 @@ const Step2Rooms = ({
   const updateCount = (room: keyof RoomCounts, delta: number) => {
     const nextVal = counts[room] + delta;
     if (room === "living" && nextVal > maxLiving) {
+      return;
+    }
+    if (room === "kitchen" && nextVal > maxKitchen) {
       return;
     }
     if (room === "bedroom" && nextVal > maxBedrooms) {
@@ -472,6 +522,7 @@ const Step2Rooms = ({
         {roomsList.map(({ key, label }) => {
           let isPlusDisabled = false;
           if (key === "living" && counts[key] >= maxLiving) isPlusDisabled = true;
+          if (key === "kitchen" && counts[key] >= maxKitchen) isPlusDisabled = true;
           if (key === "bedroom" && counts[key] >= maxBedrooms) isPlusDisabled = true;
           if (key === "bathroom" && counts[key] >= maxBathrooms) isPlusDisabled = true;
           if (key === "dining" && counts[key] >= maxDining) isPlusDisabled = true;
@@ -512,7 +563,7 @@ const Step2Rooms = ({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white/90 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full shadow-[0_30px_70px_rgba(19,80,59,0.12),inset_0_1px_1px_rgba(255,255,255,0.6)] border border-white/50 animate-scaleIn text-left relative"
+            className="bg-white rounded-3xl p-8 max-w-md w-full shadow-[0_30px_70px_rgba(19,80,59,0.12),inset_0_1px_1px_rgba(255,255,255,0.6)] border border-white/50 animate-scaleIn text-left relative"
           >
             <button
               onClick={() => setShowInfoPopup(false)}
