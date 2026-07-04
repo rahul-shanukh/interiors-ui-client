@@ -619,7 +619,7 @@ const Step3Package = ({
       image: premiumImg,
     },
     {
-      name: "Luxe",
+      name: "Luxury",
       desc: "Elite imported materials and customized luxury.",
       tag: "Signature",
       image: luxeImg,

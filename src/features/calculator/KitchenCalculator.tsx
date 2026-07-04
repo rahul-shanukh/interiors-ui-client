@@ -14,9 +14,9 @@ import straightImg from "../../assets/straight.png";
 import uShapedImg from "../../assets/ushaped.png";
 import parallelImg from "../../assets/parallel.png";
 
-import essentialImg from "../../assets/essential.png";
-import premiumImg from "../../assets/premium.png";
-import luxeImg from "../../assets/luxe.png";
+import essentialImg from "../../assets/kessential.png";
+import premiumImg from "../../assets/kpremium.png";
+import luxeImg from "../../assets/kluxury.png";
 
 // Mock layout data with illustrative details and descriptive graphics.
 const kitchenLayouts = [
@@ -51,7 +51,6 @@ const PACKAGES = [
     id: "essential",
     name: "Essential",
     tag: "Budget Friendly",
-    pricePerFoot: 1500,
     description: "Sturdy and durable finishes using quality laminate and standard hardware.",
     graphic: essentialImg,
   },
@@ -59,24 +58,76 @@ const PACKAGES = [
     id: "premium",
     name: "Premium",
     tag: "Most Popular",
-    pricePerFoot: 2200,
     description: "High-gloss acrylic finishes, premium wire accessories, and branded hardware.",
     graphic: premiumImg,
   },
   {
     id: "luxe",
-    name: "Luxe",
+    name: "Luxury",
     tag: "Signature Luxury",
-    pricePerFoot: 3500,
     description: "Imported PU finishes, custom hardware, and elite luxury styling.",
     graphic: luxeImg,
   },
 ];
 
+interface MeasurementDropdownProps {
+  value: number;
+  onChange: (val: number) => void;
+}
+
+const MeasurementDropdown: React.FC<MeasurementDropdownProps> = ({ value, onChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Fetch options using TanStack Query to keep state management clean and avoid local useEffect fetching
+  const { data: options = [] } = useQuery<number[]>({
+    queryKey: ["measurementOptions"],
+    queryFn: () => Array.from({ length: 19 }, (_, i) => i + 2),
+    staleTime: Infinity,
+  });
+
+  return (
+    <div className="relative w-full animate-fadeIn">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        onBlur={() => {
+          setTimeout(() => setIsOpen(false), 200);
+        }}
+        className="w-full flex items-center justify-between bg-gray-50 border border-transparent hover:border-gray-200 focus:bg-white focus:border-[#C5A059] focus:ring-4 focus:ring-[#C5A059]/10 rounded-xl py-3 px-4 text-base font-bold text-gray-800 cursor-pointer transition-all outline-none"
+      >
+        <span>{value}</span>
+        <ChevronDown size={16} className={`text-gray-400 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-[110%] left-0 right-0 bg-white border border-gray-100 rounded-xl shadow-xl z-[999] max-h-48 overflow-y-auto divide-y divide-gray-50 animate-fadeIn">
+          {options.map((num) => (
+            <button
+              key={num}
+              type="button"
+              onMouseDown={(e) => {
+                // Prevent button blur event from firing before mouse down is processed
+                e.preventDefault();
+                onChange(num);
+                setIsOpen(false);
+              }}
+              className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors font-bold text-sm text-gray-700 ${value === num ? "bg-[#C5A059]/5 text-[#13503B]" : ""
+                }`}
+            >
+              {num}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 
 export const KitchenCalculator: React.FC = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<number>(0);
+  const [maxStep, setMaxStep] = useState<number>(0);
   const [selectedLayoutId, setSelectedLayoutId] = useState<string | null>(null);
   const [selectedPackageId, setSelectedPackageId] = useState<string>("premium");
   const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null);
@@ -103,6 +154,8 @@ export const KitchenCalculator: React.FC = () => {
 
   const handleSelectLayout = (id: string) => {
     setSelectedLayoutId(id);
+    setCurrentStep(1);
+    setMaxStep((prev) => Math.max(prev, 1));
   };
 
   const handleBack = () => {
@@ -115,7 +168,11 @@ export const KitchenCalculator: React.FC = () => {
 
   const handleNext = () => {
     if (currentStep === 0 && !selectedLayoutId) return;
-    setCurrentStep((prev) => prev + 1);
+    setCurrentStep((prev) => {
+      const next = prev + 1;
+      setMaxStep((m) => Math.max(m, next));
+      return next;
+    });
   };
 
   const submitToBackend = async (customerDetails: CustomerDetails) => {
@@ -148,13 +205,17 @@ export const KitchenCalculator: React.FC = () => {
       setEstimatedPrice(response.estimatedPrice);
       setCurrentStep(4);
     } catch (error) {
-      console.error("Mutation failed, calculating client-side fallback", error);
-      // Fallback cost calculation
+      console.error("Mutation failed, using client-side fallback price", error);
+      let pricePerFoot = 2200; // Fallback default
+      if (selectedPackageId === "essential") pricePerFoot = 1500;
+      else if (selectedPackageId === "luxe") pricePerFoot = 3500;
+
       let multiplier = 1.0;
       if (selectedLayoutId === "l-shaped") multiplier = 1.1;
       else if (selectedLayoutId === "u-shaped") multiplier = 1.25;
       else if (selectedLayoutId === "parallel") multiplier = 1.15;
-      const clientPrice = Math.round(totalLength * selectedPkg.pricePerFoot * multiplier);
+
+      const clientPrice = Math.round(totalLength * pricePerFoot * multiplier);
       setEstimatedPrice(clientPrice);
       setCurrentStep(4);
     }
@@ -179,17 +240,17 @@ export const KitchenCalculator: React.FC = () => {
             {steps.map((label, index) => {
               const isActive = index === currentStep;
               const isCompleted = index < currentStep;
-              const isBackward = index < currentStep;
+              const isClickable = index <= maxStep;
               return (
                 <button
                   key={label}
                   onClick={() => {
-                    if (isBackward) {
+                    if (isClickable) {
                       setCurrentStep(index);
                     }
                   }}
-                  disabled={!isBackward}
-                  className={`flex flex-col items-center z-10 bg-white px-2 focus:outline-none transition-all duration-300 ${isBackward ? "cursor-pointer group" : "cursor-default"}`}
+                  disabled={!isClickable}
+                  className={`flex flex-col items-center z-10 bg-white px-2 focus:outline-none transition-all duration-300 ${isClickable ? "cursor-pointer group" : "cursor-default"}`}
                 >
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500 ${isCompleted
@@ -375,10 +436,9 @@ export const KitchenCalculator: React.FC = () => {
                     <div key={key} className="flex items-center justify-between w-full border border-gray-100 rounded-xl p-4 bg-white shadow-sm">
                       <span className="text-lg font-bold text-[#13503B] w-6">{key}</span>
                       <div className="relative flex-1 mx-4">
-                        <select
+                        <MeasurementDropdown
                           value={measurementsByLayout[selectedLayoutId || "l-shaped"][key]}
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value, 10);
+                          onChange={(val) => {
                             setMeasurementsByLayout((prev) => ({
                               ...prev,
                               [selectedLayoutId || "l-shaped"]: {
@@ -387,17 +447,7 @@ export const KitchenCalculator: React.FC = () => {
                               },
                             }));
                           }}
-                          className="w-full appearance-none bg-gray-50 border border-transparent focus:bg-white focus:border-[#C5A059] focus:ring-4 focus:ring-[#C5A059]/10 rounded-xl py-3 px-4 text-base font-bold text-gray-800 cursor-pointer transition-all outline-none"
-                        >
-                          {Array.from({ length: 19 }, (_, i) => i + 2).map((num) => (
-                            <option key={num} value={num}>
-                              {num}
-                            </option>
-                          ))}
-                        </select>
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                          <ChevronDown size={16} />
-                        </div>
+                        />
                       </div>
                       <span className="text-sm font-bold text-gray-400 w-6 text-right">ft.</span>
                     </div>
@@ -419,6 +469,7 @@ export const KitchenCalculator: React.FC = () => {
                       onClick={() => {
                         setSelectedPackageId(pkg.id);
                         setCurrentStep(3); // Auto-advance to the Get Quote step
+                        setMaxStep((prev) => Math.max(prev, 3));
                       }}
                       className={`relative w-full text-left rounded-2xl border-2 transition-all duration-300 flex flex-col sm:flex-row gap-0 cursor-pointer overflow-hidden ${selectedPackageId === pkg.id
                         ? "border-[#C5A059] bg-[#C5A059]/5 shadow-lg scale-[1.02]"
@@ -499,10 +550,9 @@ export const KitchenCalculator: React.FC = () => {
                   GO BACK
                 </button>
 
-                {currentStep < 2 && (
+                {currentStep === 1 && (
                   <button
                     onClick={handleNext}
-                    disabled={currentStep === 0 && !selectedLayoutId}
                     className="group flex items-center gap-2 bg-[#13503B] text-white px-8 py-3.5 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-[#0d3528] shadow-xl shadow-[#13503B]/20 disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
                   >
                     CONTINUE

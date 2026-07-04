@@ -241,7 +241,6 @@ export const WardrobeCalculator: React.FC = () => {
   };
 
   const steps = [
-    "Intro",
     "Wardrobe Length",
     "Wardrobe Height",
     "Wardrobe Type",
@@ -257,24 +256,23 @@ export const WardrobeCalculator: React.FC = () => {
       <div className="max-w-3xl w-full mx-auto bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.05)] overflow-hidden border border-gray-100 flex flex-col min-h-[600px]">
 
         {/* Progress Bar Header - Hide on Success/Loading */}
-        {currentStep > 0 && currentStep < 7 && (
+        {currentStep >= 0 && currentStep < 6 && (
           <div className="bg-white px-8 py-6 border-b border-gray-50 flex justify-between items-center relative">
             <div className="absolute top-[42px] left-10 right-10 h-0.5 bg-gray-100 -z-0"></div>
             <div className="w-full flex justify-between z-10">
-              {steps.slice(1, 7).map((label, idx) => {
-                const stepNum = idx + 1;
+              {steps.slice(0, 6).map((label, idx) => {
+                const stepNum = idx;
                 const isCompleted = currentStep > stepNum;
                 const isActive = currentStep === stepNum;
                 return (
                   <div key={label} className="flex flex-col items-center">
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-                        isCompleted
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${isCompleted
                           ? "bg-[#13503B] text-white"
                           : isActive
-                          ? "bg-[#C5A059] text-white ring-4 ring-[#C5A059]/20"
-                          : "bg-white border-2 border-gray-200 text-gray-400"
-                      }`}
+                            ? "bg-[#C5A059] text-white ring-4 ring-[#C5A059]/20"
+                            : "bg-white border-2 border-gray-200 text-gray-400"
+                        }`}
                     >
                       {isCompleted ? <CheckCircle2 size={16} /> : stepNum + 1}
                     </div>
@@ -291,50 +289,10 @@ export const WardrobeCalculator: React.FC = () => {
         {/* Main Content Area */}
         <div className="flex-1 p-8 sm:p-10 flex flex-col justify-center">
 
-          {/* ================= STEP 0: LANDING PAGE ================= */}
-          {currentStep === 0 && (
-            <div className="text-center animate-fadeIn py-4">
-              <div className="relative w-full h-64 sm:h-80 rounded-2xl overflow-hidden mb-8 shadow-lg group">
-                <img
-                  src="https://images.unsplash.com/photo-1595428774223-ef52624120d2?q=80&w=1000&auto=format&fit=crop"
-                  alt="Luxury Wardrobe Design"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#13503B]/90 via-[#13503B]/40 to-transparent flex flex-col justify-end p-8 text-left">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#C5A059] text-white text-[10px] font-bold uppercase tracking-widest rounded-full w-max mb-3">
-                    <Sparkles size={10} /> Configurator v2
-                  </span>
-                  <h1 className="text-white text-3xl sm:text-4xl font-serif font-bold tracking-tight mb-2">
-                    Estimate Your Dream Wardrobe Cost
-                  </h1>
-                  <p className="text-gray-200 text-sm max-w-lg font-light leading-relaxed">
-                    Choose doors, materials, premium laminate/glass finishes, and accessories to customize and receive an instant estimate.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <button
-                  onClick={() => setCurrentStep(1)}
-                  className="w-full sm:w-auto bg-[#13503B] text-white px-10 py-5 rounded-full font-bold tracking-widest text-xs uppercase shadow-xl hover:bg-[#0d3528] active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
-                >
-                  Start Configurator
-                  <ChevronRight size={14} />
-                </button>
-                <button
-                  onClick={() => navigate("/")}
-                  className="text-gray-400 font-bold tracking-widest text-xs uppercase hover:text-gray-700 transition-colors"
-                >
-                  Back to Home
-                </button>
-              </div>
-            </div>
-          )}
-
           {/* ================= STEP 1: WARDROBE LENGTH ================= */}
-          {currentStep === 1 && (
+          {currentStep === 0 && (
             <div className="animate-fadeIn text-center">
-              <span className="text-[#C5A059] font-black text-xs uppercase tracking-widest">Step 2 of 7</span>
+              <span className="text-[#C5A059] font-black text-xs uppercase tracking-widest">Step 1 of 6</span>
               <h2 className="text-3xl font-serif text-[#13503B] font-bold mt-2 mb-4">What is your wardrobe length?</h2>
               <p className="text-gray-400 text-sm mb-8">Select the outer length (horizontal width) of your cabinet layout.</p>
 
@@ -345,11 +303,10 @@ export const WardrobeCalculator: React.FC = () => {
                     onClick={() => {
                       setSelectedLength(len);
                     }}
-                    className={`py-6 px-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center cursor-pointer ${
-                      selectedLength === len
+                    className={`py-6 px-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center cursor-pointer ${selectedLength === len
                         ? "border-[#13503B] bg-[#13503B]/5 text-[#13503B] scale-105 shadow-md font-bold"
                         : "border-gray-100 bg-gray-50 hover:bg-gray-100 text-gray-500"
-                    }`}
+                      }`}
                   >
                     <span className="text-xl font-bold font-serif">{len}</span>
                     <span className="text-[10px] uppercase font-bold text-gray-400 mt-1">Width</span>
@@ -380,9 +337,9 @@ export const WardrobeCalculator: React.FC = () => {
           )}
 
           {/* ================= STEP 2: WARDROBE HEIGHT ================= */}
-          {currentStep === 2 && (
+          {currentStep === 1 && (
             <div className="animate-fadeIn text-center">
-              <span className="text-[#C5A059] font-black text-xs uppercase tracking-widest">Step 3 of 7</span>
+              <span className="text-[#C5A059] font-black text-xs uppercase tracking-widest">Step 2 of 6</span>
               <h2 className="text-3xl font-serif text-[#13503B] font-bold mt-2 mb-4">What is your wardrobe height?</h2>
               <p className="text-gray-400 text-sm mb-8">Select the height of your wardrobe cabinet layout.</p>
 
@@ -393,11 +350,10 @@ export const WardrobeCalculator: React.FC = () => {
                     onClick={() => {
                       setSelectedHeight(h);
                     }}
-                    className={`py-6 px-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center cursor-pointer ${
-                      selectedHeight === h
+                    className={`py-6 px-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center cursor-pointer ${selectedHeight === h
                         ? "border-[#13503B] bg-[#13503B]/5 text-[#13503B] scale-105 shadow-md font-bold"
                         : "border-gray-100 bg-gray-50 hover:bg-gray-100 text-gray-500"
-                    }`}
+                      }`}
                   >
                     <span className="text-base font-bold font-serif">{h}</span>
                     <span className="text-[10px] uppercase font-bold text-gray-400 mt-1">Height</span>
@@ -408,9 +364,9 @@ export const WardrobeCalculator: React.FC = () => {
           )}
 
           {/* ================= STEP 3: WARDROBE TYPE ================= */}
-          {currentStep === 3 && (
+          {currentStep === 2 && (
             <div className="animate-fadeIn text-center">
-              <span className="text-[#C5A059] font-black text-xs uppercase tracking-widest">Step 4 of 7</span>
+              <span className="text-[#C5A059] font-black text-xs uppercase tracking-widest">Step 3 of 6</span>
               <h2 className="text-3xl font-serif text-[#13503B] font-bold mt-2 mb-4">Choose your wardrobe type</h2>
               <p className="text-gray-400 text-sm mb-8">Select the style of wardrobe layout.</p>
 
@@ -421,22 +377,20 @@ export const WardrobeCalculator: React.FC = () => {
                     onClick={() => {
                       setSelectedType(t.id);
                     }}
-                    className={`relative rounded-xl border-2 overflow-hidden transition-all duration-300 min-h-[200px] text-left group cursor-pointer ${
-                      selectedType === t.id
+                    className={`relative rounded-xl border-2 overflow-hidden transition-all duration-300 min-h-[200px] text-left group cursor-pointer ${selectedType === t.id
                         ? "border-[#C5A059] shadow-lg scale-[1.02]"
                         : "border-gray-100 hover:border-[#13503B] hover:shadow-md hover:scale-[1.01]"
-                    }`}
+                      }`}
                   >
                     <img
                       src={t.image}
                       alt={t.name}
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
-                    <div className={`absolute inset-0 transition-all duration-300 z-10 ${
-                      selectedType === t.id
+                    <div className={`absolute inset-0 transition-all duration-300 z-10 ${selectedType === t.id
                         ? "bg-gradient-to-t from-[#13503B]/95 via-[#13503B]/60 to-[#13503B]/20"
                         : "bg-gradient-to-t from-black/85 via-black/45 to-transparent group-hover:from-black/90 group-hover:via-black/55"
-                    }`} />
+                      }`} />
 
                     {selectedType === t.id && (
                       <div className="absolute top-3 right-3 bg-[#C5A059] text-white rounded-full p-1 shadow-md z-20 animate-scaleIn">
@@ -457,9 +411,9 @@ export const WardrobeCalculator: React.FC = () => {
           )}
 
           {/* ================= STEP 4: FINISH ================= */}
-          {currentStep === 4 && (
+          {currentStep === 3 && (
             <div className="animate-fadeIn text-center">
-              <span className="text-[#C5A059] font-black text-xs uppercase tracking-widest">Step 5 of 7</span>
+              <span className="text-[#C5A059] font-black text-xs uppercase tracking-widest">Step 4 of 6</span>
               <h2 className="text-3xl font-serif text-[#13503B] font-bold mt-2 mb-4">Choose your preferred finish</h2>
               <p className="text-gray-400 text-sm mb-8">Pick the face finish for the wardrobe doors and panels.</p>
 
@@ -470,11 +424,10 @@ export const WardrobeCalculator: React.FC = () => {
                     onClick={() => {
                       setSelectedFinish(f.id);
                     }}
-                    className={`w-full p-4 rounded-xl border-2 transition-all flex items-center text-left cursor-pointer overflow-hidden ${
-                      selectedFinish === f.id
+                    className={`w-full p-4 rounded-xl border-2 transition-all flex items-center text-left cursor-pointer overflow-hidden ${selectedFinish === f.id
                         ? "border-[#13503B] bg-[#13503B]/5 scale-[1.01] shadow-md"
                         : "border-gray-100 bg-gray-50 hover:bg-gray-100"
-                    }`}
+                      }`}
                   >
                     <img
                       src={f.image}
@@ -492,9 +445,9 @@ export const WardrobeCalculator: React.FC = () => {
           )}
 
           {/* ================= STEP 5: MATERIAL ================= */}
-          {currentStep === 5 && (
+          {currentStep === 4 && (
             <div className="animate-fadeIn text-center">
-              <span className="text-[#C5A059] font-black text-xs uppercase tracking-widest">Step 6 of 7</span>
+              <span className="text-[#C5A059] font-black text-xs uppercase tracking-widest">Step 5 of 6</span>
               <h2 className="text-3xl font-serif text-[#13503B] font-bold mt-2 mb-4">Choose the core material</h2>
               <p className="text-gray-400 text-sm mb-8">Choose the inner substrate panel material which guarantees robustness.</p>
 
@@ -505,11 +458,10 @@ export const WardrobeCalculator: React.FC = () => {
                     onClick={() => {
                       setSelectedMaterial(mat.id);
                     }}
-                    className={`p-4 rounded-xl border-2 transition-all text-left flex gap-4 cursor-pointer ${
-                      selectedMaterial === mat.id
+                    className={`p-4 rounded-xl border-2 transition-all text-left flex gap-4 cursor-pointer ${selectedMaterial === mat.id
                         ? "border-[#13503B] bg-[#13503B]/5 scale-105 shadow-md"
                         : "border-gray-100 bg-gray-50 hover:bg-gray-100"
-                    }`}
+                      }`}
                   >
                     <img
                       src={mat.image}
@@ -534,9 +486,9 @@ export const WardrobeCalculator: React.FC = () => {
           )}
 
           {/* ================= STEP 6: ACCESSORIES ================= */}
-          {currentStep === 6 && (
+          {currentStep === 5 && (
             <div className="animate-fadeIn text-center">
-              <span className="text-[#C5A059] font-black text-xs uppercase tracking-widest">Step 7 of 7</span>
+              <span className="text-[#C5A059] font-black text-xs uppercase tracking-widest">Step 6 of 6</span>
               <h2 className="text-3xl font-serif text-[#13503B] font-bold mt-2 mb-4">Select accessories</h2>
               <p className="text-gray-400 text-sm mb-8">Select multiple premium additions to elevate closet functionality.</p>
 
@@ -547,22 +499,20 @@ export const WardrobeCalculator: React.FC = () => {
                     <button
                       key={acc.id}
                       onClick={() => toggleAccessory(acc.id)}
-                      className={`p-4 rounded-xl border-2 transition-all text-left flex items-start justify-between cursor-pointer ${
-                        isChecked
+                      className={`p-4 rounded-xl border-2 transition-all text-left flex items-start justify-between cursor-pointer ${isChecked
                           ? "border-[#13503B] bg-[#13503B]/5 shadow-sm"
                           : "border-gray-100 bg-gray-50 hover:bg-gray-100"
-                      }`}
+                        }`}
                     >
                       <div className="pr-3">
                         <span className="font-bold text-gray-800 text-sm block">{acc.name}</span>
                         <p className="text-[11px] text-gray-400 mt-1">{acc.desc}</p>
                       </div>
                       <div
-                        className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
-                          isChecked
+                        className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${isChecked
                             ? "bg-[#13503B] border-transparent text-white"
                             : "border-gray-300 bg-white"
-                        }`}
+                          }`}
                       >
                         {isChecked && <CheckCircle2 size={12} />}
                       </div>
@@ -581,7 +531,7 @@ export const WardrobeCalculator: React.FC = () => {
           )}
 
           {/* ================= STEP 7: SUMMARY SCREEN ================= */}
-          {currentStep === 7 && (
+          {currentStep === 6 && (
             <div className="animate-fadeIn text-center">
               <span className="text-[#C5A059] font-black text-xs uppercase tracking-widest">Summary</span>
               <h2 className="text-3xl font-serif text-[#13503B] font-bold mt-2 mb-4">Configurator Summary</h2>
@@ -596,7 +546,7 @@ export const WardrobeCalculator: React.FC = () => {
                       {selectedLength === "Custom" ? `${customLength} ft` : selectedLength}
                     </span>
                   </div>
-                  <button onClick={() => setCurrentStep(1)} className="text-[#13503B] hover:text-[#0d3528] transition-colors">
+                  <button onClick={() => setCurrentStep(0)} className="text-[#13503B] hover:text-[#0d3528] transition-colors">
                     <Edit2 size={16} />
                   </button>
                 </div>
@@ -607,7 +557,7 @@ export const WardrobeCalculator: React.FC = () => {
                     <span className="text-[10px] font-black uppercase text-[#C5A059] tracking-wider block">Wardrobe Height</span>
                     <span className="text-sm font-bold text-gray-800">{selectedHeight}</span>
                   </div>
-                  <button onClick={() => setCurrentStep(2)} className="text-[#13503B] hover:text-[#0d3528] transition-colors">
+                  <button onClick={() => setCurrentStep(1)} className="text-[#13503B] hover:text-[#0d3528] transition-colors">
                     <Edit2 size={16} />
                   </button>
                 </div>
@@ -620,7 +570,7 @@ export const WardrobeCalculator: React.FC = () => {
                       {TYPES.find((t) => t.id === selectedType)?.name || selectedType}
                     </span>
                   </div>
-                  <button onClick={() => setCurrentStep(3)} className="text-[#13503B] hover:text-[#0d3528] transition-colors">
+                  <button onClick={() => setCurrentStep(2)} className="text-[#13503B] hover:text-[#0d3528] transition-colors">
                     <Edit2 size={16} />
                   </button>
                 </div>
@@ -633,7 +583,7 @@ export const WardrobeCalculator: React.FC = () => {
                       {FINISHES.find((f) => f.id === selectedFinish)?.name || selectedFinish}
                     </span>
                   </div>
-                  <button onClick={() => setCurrentStep(4)} className="text-[#13503B] hover:text-[#0d3528] transition-colors">
+                  <button onClick={() => setCurrentStep(3)} className="text-[#13503B] hover:text-[#0d3528] transition-colors">
                     <Edit2 size={16} />
                   </button>
                 </div>
@@ -646,7 +596,7 @@ export const WardrobeCalculator: React.FC = () => {
                       {MATERIALS.find((m) => m.id === selectedMaterial)?.name || selectedMaterial}
                     </span>
                   </div>
-                  <button onClick={() => setCurrentStep(5)} className="text-[#13503B] hover:text-[#0d3528] transition-colors">
+                  <button onClick={() => setCurrentStep(4)} className="text-[#13503B] hover:text-[#0d3528] transition-colors">
                     <Edit2 size={16} />
                   </button>
                 </div>
@@ -661,7 +611,7 @@ export const WardrobeCalculator: React.FC = () => {
                         : "None Selected"}
                     </span>
                   </div>
-                  <button onClick={() => setCurrentStep(6)} className="text-[#13503B] hover:text-[#0d3528] transition-colors">
+                  <button onClick={() => setCurrentStep(5)} className="text-[#13503B] hover:text-[#0d3528] transition-colors">
                     <Edit2 size={16} />
                   </button>
                 </div>
@@ -677,12 +627,12 @@ export const WardrobeCalculator: React.FC = () => {
           )}
 
           {/* ================= STEP 8: GET QUOTE (Map Geolocation) ================= */}
-          {currentStep === 8 && (
+          {currentStep === 7 && (
             <Step3Quote onSubmit={submitToBackend} loading={isPending} />
           )}
 
           {/* ================= STEP 9: RESULTS PAGE ================= */}
-          {currentStep === 9 && estimatedPrice !== null && priceBreakdown !== null && (
+          {currentStep === 8 && estimatedPrice !== null && priceBreakdown !== null && (
             <div className="text-center animate-fadeIn py-4">
               <div className="inline-flex items-center justify-center w-20 h-20 bg-green-50 rounded-full mb-6 text-green-600 shadow-inner">
                 <CheckCircle2 size={40} />
@@ -742,7 +692,7 @@ export const WardrobeCalculator: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => {
-                    setCurrentStep(1);
+                    setCurrentStep(0);
                     setEstimatedPrice(null);
                     setPriceBreakdown(null);
                   }}
@@ -767,8 +717,8 @@ export const WardrobeCalculator: React.FC = () => {
 
         </div>
 
-        {/* Footer Navigation Buttons (Hidden on Intro and results) */}
-        {currentStep > 0 && currentStep < 9 && (
+        {/* Footer Navigation Buttons (Hidden on results) */}
+        {currentStep >= 0 && currentStep < 8 && (
           <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-between items-center mt-auto">
             <button
               onClick={handleBack}
@@ -778,7 +728,7 @@ export const WardrobeCalculator: React.FC = () => {
               GO BACK
             </button>
 
-            {currentStep < 7 && (
+            {currentStep < 6 && (
               <button
                 onClick={handleNext}
                 className="group flex items-center gap-2 bg-[#13503B] text-white px-8 py-3.5 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-[#0d3528] shadow-xl shadow-[#13503B]/20 active:scale-95 cursor-pointer"
