@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 
 *.tfvars
+.env
+**/.terraform/
+*.tfstate
+*.tfstate.*
