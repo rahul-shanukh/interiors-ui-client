@@ -1,3 +1,4 @@
+//src/entities/quote/model/quote.types.ts
 export interface RoomCounts {
   living: number;
   kitchen: number;
@@ -13,6 +14,7 @@ export interface CustomerDetails {
   city: string;
   latitude?: number;
   longitude?: number;
+  recaptchaToken?: string;
 }
 
 export interface CalculatorBuildData {
@@ -35,6 +37,7 @@ export interface QuoteRequest {
   city?: string;
   latitude?: number;
   longitude?: number;
+  recaptchaToken?: string;
 }
 
 export interface QuoteResponse {
