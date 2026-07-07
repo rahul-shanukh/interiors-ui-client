@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { FaWhatsapp } from "react-icons/fa";
 import { X } from "lucide-react";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
