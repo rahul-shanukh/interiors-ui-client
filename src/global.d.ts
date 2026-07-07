@@ -1,5 +1,10 @@
 // Generic CSS wildcard
 declare module "*.css";
+declare module "*.png";
+declare module "*.jpg";
+declare module "*.jpeg";
+declare module "*.gif";
+declare module "*.svg";
 
 // Explicit Swiper CSS declarations
 declare module "swiper/css";

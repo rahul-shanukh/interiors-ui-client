@@ -37,21 +37,27 @@ const CreateEmployeePage = lazy(
 );
 
 const FullHomeCalculator = lazy(() =>
-  import("../../features/calculator/FullHomeCalculator").then((m) => ({
-    default: m.FullHomeCalculator,
-  })),
+  import("../../features/calculator/components/FullHomeCalculator").then(
+    (m) => ({
+      default: m.FullHomeCalculator,
+    }),
+  ),
 );
 
 const KitchenCalculator = lazy(() =>
-  import("../../features/calculator/KitchenCalculator").then((m) => ({
-    default: m.KitchenCalculator,
-  })),
+  import("../../features/calculator/components/KitchenCalculator").then(
+    (m) => ({
+      default: m.KitchenCalculator,
+    }),
+  ),
 );
 
 const WardrobeCalculator = lazy(() =>
-  import("../../features/calculator/WardrobeCalculator").then((m) => ({
-    default: m.WardrobeCalculator,
-  })),
+  import("../../features/calculator/components/WardrobeCalculator").then(
+    (m) => ({
+      default: m.WardrobeCalculator,
+    }),
+  ),
 );
 
 export const AppRouter = () => {
