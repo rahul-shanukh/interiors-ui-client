@@ -315,11 +315,7 @@ export const WardrobeCalculator: React.FC = () => {
     );
   };
 
-  const submitToBackend = async (
-    customerDetails: CustomerDetails & { countryCode?: string },
-  ) => {
-    const { countryCode: _countryCode, ...cleanCustomerDetails } =
-      customerDetails;
+  const submitToBackend = async (customerDetails: CustomerDetails) => {
     const displayLength = selectedLength.includes("ft")
       ? selectedLength
       : `${selectedLength} ft`;
@@ -336,16 +332,16 @@ export const WardrobeCalculator: React.FC = () => {
       areaSize: `${displayLength} x ${displayHeight} (Material: ${selectedMaterial}, Finish: ${selectedFinish}, Accessories: ${accessoriesText})`,
       rooms: { living: 0, kitchen: 0, bedroom: 1, bathroom: 0, dining: 0 },
       package: `${selectedMaterial} + ${selectedFinish} (Accessories: ${accessoriesText})`,
-      name: cleanCustomerDetails.name,
-      phone: cleanCustomerDetails.phone,
-      email: cleanCustomerDetails.email,
-      city: cleanCustomerDetails.city,
-      latitude: cleanCustomerDetails.latitude,
-      longitude: cleanCustomerDetails.longitude,
-      recaptchaToken: cleanCustomerDetails.recaptchaToken,
+      name: customerDetails.name,
+      phone: customerDetails.phone,
+      email: customerDetails.email,
+      city: customerDetails.city,
+      latitude: customerDetails.latitude,
+      longitude: customerDetails.longitude,
+      recaptchaToken: customerDetails.recaptchaToken,
     };
 
-    setForm(cleanCustomerDetails);
+    setForm(customerDetails);
 
     try {
       const response = await mutateAsync(payload);
@@ -961,14 +957,9 @@ const Step6Quote = ({
   onSubmit: (data: CustomerDetails) => void;
   loading: boolean;
 }) => {
-  const handleSubmit = (data: CustomerDetails & { countryCode?: string }) => {
-    const { countryCode: _countryCode, ...customerDetails } = data;
-    onSubmit(customerDetails);
-  };
-
   return (
     <QuoteContactStep
-      onSubmit={handleSubmit}
+      onSubmit={onSubmit}
       loading={loading}
       headingText="Almost ready!"
       descriptionText="Enter your details to reveal your personalized wardrobe estimate."
