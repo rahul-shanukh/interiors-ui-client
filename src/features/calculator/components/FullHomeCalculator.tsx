@@ -148,7 +148,7 @@ export const FullHomeCalculator = () => {
       const response = await mutateAsync(finalPayload);
       setEstimatedPrice(response.estimatedPrice);
       setStep(5);
-    } catch (error) {
+    } catch {
       // Error is handled by useMutation onError
     }
   };
@@ -705,14 +705,9 @@ const Step4Quote = ({
   onSubmit: (data: CustomerDetails) => void;
   loading: boolean;
 }) => {
-  const handleSubmit = (data: CustomerDetails & { countryCode?: string }) => {
-    const { countryCode: _countryCode, ...customerDetails } = data;
-    onSubmit(customerDetails);
-  };
-
   return (
     <QuoteContactStep
-      onSubmit={handleSubmit}
+      onSubmit={onSubmit}
       loading={loading}
       headingText="Almost ready!"
       descriptionText="Enter your details to reveal your personalized interior estimate."

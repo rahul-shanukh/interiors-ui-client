@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 import { type ZodIssue } from "zod";
@@ -30,10 +30,26 @@ const CITIES = [
 ];
 
 interface QuoteContactStepProps {
-  onSubmit: (data: CustomerDetails & { countryCode: string }) => void;
+  onSubmit: (data: CustomerDetails) => void;
   loading: boolean;
   headingText?: string;
   descriptionText?: string;
+}
+
+interface NominatimSearchResult {
+  display_name: string;
+  lat: string;
+  lon: string;
+}
+
+interface NominatimReverseResult {
+  address?: {
+    city?: string;
+    town?: string;
+    district?: string;
+    county?: string;
+    state?: string;
+  };
 }
 
 export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
@@ -83,12 +99,12 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
         },
       );
       if (!res.ok) throw new Error("Search failed");
-      const data = await res.json();
-      return data.map((item: any) => {
+      const data = (await res.json()) as NominatimSearchResult[];
+      return data.map((item) => {
         const parts = item.display_name.split(",");
         const shortName = parts
           .slice(0, 2)
-          .map((p: any) => p.trim())
+          .map((part) => part.trim())
           .join(", ");
         return {
           displayName: item.display_name,
@@ -104,13 +120,17 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
     staleTime: 5 * 60 * 1000,
   });
 
-  const { mutate: reverseGeocode } = useMutation({
+  const { mutate: reverseGeocode } = useMutation<
+    NominatimReverseResult,
+    Error,
+    { lat: number; lng: number }
+  >({
     mutationFn: async ({ lat, lng }: { lat: number; lng: number }) => {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&accept-language=en`,
       );
       if (!res.ok) throw new Error("Reverse geocoding failed");
-      return res.json();
+      return (await res.json()) as NominatimReverseResult;
     },
     onSuccess: (data, variables) => {
       if (data && data.address) {
@@ -132,7 +152,9 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
   });
 
   const reverseGeocodeRef = useRef(reverseGeocode);
-  reverseGeocodeRef.current = reverseGeocode;
+  useEffect(() => {
+    reverseGeocodeRef.current = reverseGeocode;
+  }, [reverseGeocode]);
 
   const leafletMapRef = useRef<L.Map | null>(null);
   const markerMapRef = useRef<Record<string, L.Marker>>({});
@@ -149,8 +171,11 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
 
     // Clear out spatial errors when a valid point is selected
     setErrors((prev) => {
-      const { city, latitude, longitude, ...rest } = prev;
-      return rest;
+      const nextErrors = { ...prev };
+      delete nextErrors.city;
+      delete nextErrors.latitude;
+      delete nextErrors.longitude;
+      return nextErrors;
     });
 
     if (leafletMapRef.current) {
@@ -188,7 +213,9 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
   const selectCityRef = useRef<
     (name: string, coords: [number, number]) => void
   >(() => {});
-  selectCityRef.current = handleSelectCity;
+  useEffect(() => {
+    selectCityRef.current = handleSelectCity;
+  });
 
   const initMap = useCallback((node: HTMLDivElement | null) => {
     if (!node) {
@@ -265,7 +292,6 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
       onSubmit({
         ...form,
         phone: `${countryCode}${form.phone}`,
-        countryCode,
         recaptchaToken,
       });
     } catch (error) {

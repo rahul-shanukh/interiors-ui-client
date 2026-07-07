@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "openapi:generate": "openapi-typescript http://localhost:3000/api/docs-json -o src/infrastructure/openapi/schema.ts",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview"
   },
   "dependencies": {

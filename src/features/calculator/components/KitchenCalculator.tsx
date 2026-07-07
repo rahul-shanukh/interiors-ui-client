@@ -202,13 +202,8 @@ export const KitchenCalculator: React.FC = () => {
     });
   };
 
-  const submitToBackend = async (
-    customerDetails: CustomerDetails & { countryCode?: string },
-  ) => {
+  const submitToBackend = async (customerDetails: CustomerDetails) => {
     if (!selectedLayoutId) return;
-
-    const { countryCode: _countryCode, ...cleanCustomerDetails } =
-      customerDetails;
 
     const layoutNameMap = Object.fromEntries(
       kitchenLayouts.map((l) => [l.id, l.name]),
@@ -221,12 +216,12 @@ export const KitchenCalculator: React.FC = () => {
       selectedLayoutId,
       selectedPackageId,
       measurements: measurementsByLayout[selectedLayoutId],
-      customerDetails: cleanCustomerDetails,
+      customerDetails,
       layoutNameMap,
       packageNameMap,
     });
 
-    setForm(cleanCustomerDetails);
+    setForm(customerDetails);
 
     try {
       const response = await mutateAsync(payload);
