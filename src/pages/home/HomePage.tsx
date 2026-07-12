@@ -6,6 +6,7 @@ import { ProjectJourneySection } from "./ui/DeepDiveSection";
 import { FaqSection } from "./ui/FaqSection";
 import { HomeFooter } from "./ui/HomeFooter";
 import FloatWhatsapp from "../../features/communication/FloatWhatsapp";
+import SocialSidebar from "../../features/communication/SocialSidebar";
 
 export const HomePage = () => {
   return (
@@ -20,6 +21,8 @@ export const HomePage = () => {
       </main>
       <HomeFooter />
       <FloatWhatsapp />
+      <SocialSidebar />
     </>
   );
 };
+

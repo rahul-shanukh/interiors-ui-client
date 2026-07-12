@@ -34,6 +34,8 @@ interface QuoteContactStepProps {
   loading: boolean;
   headingText?: string;
   descriptionText?: string;
+  submitButtonText?: string;
+  minimal?: boolean;
 }
 
 interface NominatimSearchResult {
@@ -57,6 +59,8 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
   loading,
   headingText = "Almost ready!",
   descriptionText = "Enter your details to reveal your personalized estimate.",
+  submitButtonText = "Reveal My Estimate",
+  minimal = false,
 }) => {
   const [form, setForm] = useState<CustomerDetails>({
     name: "",
@@ -212,7 +216,7 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
 
   const selectCityRef = useRef<
     (name: string, coords: [number, number]) => void
-  >(() => {});
+  >(() => { });
   useEffect(() => {
     selectCityRef.current = handleSelectCity;
   });
@@ -317,13 +321,15 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
 
   return (
     <div className="text-center animate-fadeIn max-w-sm mx-auto w-full">
-      <div className="inline-flex items-center justify-center w-16 h-16 bg-[#C5A059]/10 rounded-full mb-6 text-[#C5A059]">
-        <Sparkles size={32} />
-      </div>
-      <h2 className="text-3xl font-serif font-bold text-[#13503B] mb-3">
+      {!minimal && (
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-[#C5A059]/10 rounded-full mb-6 text-[#C5A059]">
+          <Sparkles size={32} />
+        </div>
+      )}
+      <h2 className={minimal ? "text-xl font-serif text-[#13503B] tracking-wide mb-1" : "text-3xl font-serif font-bold text-[#13503B] mb-3"}>
         {headingText}
       </h2>
-      <p className="text-gray-500 text-sm mb-10">{descriptionText}</p>
+      <p className={`text-gray-500 text-xs ${minimal ? "mb-6" : "mb-10"}`}>{descriptionText}</p>
 
       <div className="space-y-3">
         {/* Name Field Container */}
@@ -331,12 +337,20 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
           <div className="relative">
             <User
               size={16}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              className={`absolute top-1/2 -translate-y-1/2 text-gray-400 transition-colors ${minimal ? "left-3 text-[#13503B]/50" : "left-4"}`}
             />
             <input
               type="text"
               placeholder="Your Name"
-              className={`w-full pl-12 pr-4 py-4 bg-gray-50 border rounded-xl outline-none focus:bg-white focus:border-[#C5A059] transition-all font-medium text-gray-800 ${errors.name ? "border-red-400 focus:border-red-500 ring-2 ring-red-100" : "border-transparent"}`}
+              className={`w-full pr-4 outline-none transition-all font-medium text-gray-800 text-sm 
+                ${minimal
+                  ? "pl-10 py-3.5 bg-transparent border border-[#13503B]/30 rounded-sm text-[#13503B] placeholder:text-[#13503B]/40 focus:border-[#13503B] focus:ring-1 focus:ring-[#13503B]/20"
+                  : "pl-12 py-4 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-[#C5A059]"
+                } 
+                ${errors.name
+                  ? (minimal ? "border-red-400 focus:border-red-500 focus:ring-red-500" : "border-red-400 focus:border-red-500 ring-2 ring-red-100")
+                  : ""
+                }`}
               value={form.name}
               onChange={(e) => updateField("name", e.target.value)}
             />
@@ -353,18 +367,18 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
           <div className="relative flex items-center group">
             <Phone
               size={16}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#C5A059] transition-colors z-20"
+              className={`absolute top-1/2 -translate-y-1/2 transition-colors z-20 ${minimal ? "left-3 text-[#13503B]/50 group-focus-within:text-[#13503B]" : "text-gray-400 group-focus-within:text-[#C5A059] left-4"}`}
             />
-            <div className="absolute left-10 top-1/2 -translate-y-1/2 flex items-center z-20 border-r border-gray-200 group-focus-within:border-[#C5A059]/30 pr-2.5 transition-colors">
+            <div className={`absolute top-1/2 -translate-y-1/2 flex items-center z-20 border-r transition-colors ${minimal ? "left-9 border-[#13503B]/20 group-focus-within:border-[#13503B]/50" : "border-gray-200 group-focus-within:border-[#C5A059]/30 left-10"}`}>
               <button
                 type="button"
                 onClick={() => setShowCountryDropdown(!showCountryDropdown)}
                 className="flex items-center gap-1 bg-transparent border-none outline-none font-semibold text-gray-700 text-sm cursor-pointer select-none py-1 hover:text-[#13503B] transition-colors pr-1"
               >
-                <span>{countryCode}</span>
+                <span className={minimal ? "text-[#13503B]" : ""}>{countryCode}</span>
                 <ChevronDown
                   size={12}
-                  className="text-gray-400 group-hover:text-gray-600 transition-colors"
+                  className={`transition-colors ${minimal ? "text-[#13503B]/50 group-hover:text-[#13503B]" : "text-gray-400 group-hover:text-gray-600"}`}
                 />
               </button>
             </div>
@@ -372,7 +386,15 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
             <input
               type="tel"
               placeholder="WhatsApp Number"
-              className={`w-full pl-24 pr-4 py-4 bg-gray-50 border rounded-xl outline-none focus:bg-white focus:border-[#C5A059] transition-all font-medium text-gray-800 focus:shadow-md ${errors.phone ? "border-red-400 focus:border-red-500 ring-2 ring-red-100" : "border-transparent"}`}
+              className={`w-full pr-4 outline-none transition-all font-medium text-gray-800 text-sm 
+                ${minimal
+                  ? "pl-24 py-3.5 bg-transparent border border-[#13503B]/30 rounded-sm text-[#13503B] placeholder:text-[#13503B]/40 focus:border-[#13503B] focus:ring-1 focus:ring-[#13503B]/20"
+                  : "pl-24 py-4 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-[#C5A059] focus:shadow-md"
+                } 
+                ${errors.phone
+                  ? (minimal ? "border-red-400 focus:border-red-500 focus:ring-red-500" : "border-red-400 focus:border-red-500 ring-2 ring-red-100")
+                  : ""
+                }`}
               value={form.phone}
               onChange={(e) =>
                 updateField("phone", e.target.value.replace(/\D/g, ""))
@@ -413,12 +435,20 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
           <div className="relative">
             <Mail
               size={16}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              className={`absolute top-1/2 -translate-y-1/2 text-gray-400 transition-colors ${minimal ? "left-3 text-[#13503B]/50" : "left-4"}`}
             />
             <input
               type="email"
               placeholder="Email Address"
-              className={`w-full pl-12 pr-4 py-4 bg-gray-50 border rounded-xl outline-none focus:bg-white focus:border-[#C5A059] transition-all font-medium text-gray-800 ${errors.email ? "border-red-400 focus:border-red-500 ring-2 ring-red-100" : "border-transparent"}`}
+              className={`w-full pr-4 outline-none transition-all font-medium text-gray-800 text-sm 
+                ${minimal
+                  ? "pl-10 py-3.5 bg-transparent border border-[#13503B]/30 rounded-sm text-[#13503B] placeholder:text-[#13503B]/40 focus:border-[#13503B] focus:ring-1 focus:ring-[#13503B]/20"
+                  : "pl-12 py-4 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-[#C5A059]"
+                } 
+                ${errors.email
+                  ? (minimal ? "border-red-400 focus:border-red-500 focus:ring-red-500" : "border-red-400 focus:border-red-500 ring-2 ring-red-100")
+                  : ""
+                }`}
               value={form.email}
               onChange={(e) => updateField("email", e.target.value)}
             />
@@ -430,22 +460,32 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
           )}
         </div>
 
-        <div className="text-left mt-6">
-          <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#13503B] mb-2">
-            <MapPin size={14} /> Select City
-          </label>
-        </div>
+        {!minimal && (
+          <div className="text-left mt-6">
+            <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#13503B] mb-2">
+              <MapPin size={14} /> Select City
+            </label>
+          </div>
+        )}
 
         {/* Search City Field Container */}
         <div className="relative mb-2 z-30">
           <Search
             size={16}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+            className={`absolute top-1/2 -translate-y-1/2 text-gray-400 transition-colors ${minimal ? "left-3 text-[#13503B]/50" : "left-4"}`}
           />
           <input
             type="text"
             placeholder="Search city (e.g. Mumbai, Pune...)"
-            className={`w-full pl-12 pr-4 py-4 bg-gray-50 border rounded-xl outline-none focus:bg-white focus:border-[#C5A059] transition-all font-medium text-gray-800 ${errors.city ? "border-red-400 focus:border-red-500 ring-2 ring-red-100" : "border-transparent"}`}
+            className={`w-full pr-4 outline-none transition-all font-medium text-gray-800 text-sm 
+              ${minimal
+                ? "pl-10 py-3.5 bg-transparent border border-[#13503B]/30 rounded-sm text-[#13503B] placeholder:text-[#13503B]/40 focus:border-[#13503B] focus:ring-1 focus:ring-[#13503B]/20"
+                : "pl-12 py-4 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-[#C5A059]"
+              } 
+              ${errors.city
+                ? (minimal ? "border-red-400 focus:border-red-500 focus:ring-red-500" : "border-red-400 focus:border-red-500 ring-2 ring-red-100")
+                : ""
+              }`}
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -507,7 +547,10 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
               key={c.name}
               type="button"
               onClick={() => handleSelectCity(c.name, c.coords)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 cursor-pointer ${form.city === c.name ? "bg-[#13503B] text-white shadow-md scale-105" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}
+              className={`px-3 py-1.5 transition-all duration-300 cursor-pointer ${minimal
+                  ? `text-xs border-b border-transparent ${form.city === c.name ? "border-[#13503B] text-[#13503B] font-bold" : "text-gray-400 hover:text-gray-700"}`
+                  : `rounded-full text-xs font-semibold ${form.city === c.name ? "bg-[#13503B] text-white shadow-md scale-105" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`
+                }`}
             >
               {c.name}
             </button>
@@ -517,7 +560,10 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
         {/* Map Container & Spatial Validation Alerts */}
         <div>
           <div
-            className={`relative w-full h-56 rounded-2xl overflow-hidden border shadow-inner bg-gray-50 mb-2 ${errors.latitude || errors.longitude ? "border-red-400 ring-2 ring-red-500/10" : "border-gray-100"}`}
+            className={`relative w-full h-44 overflow-hidden bg-gray-50 mb-2 ${minimal
+                ? `rounded-sm border border-[#13503B]/30 ${errors.latitude || errors.longitude ? "border-red-400" : ""}`
+                : `border rounded-2xl shadow-inner ${errors.latitude || errors.longitude ? "border-red-400 ring-2 ring-red-500/10" : "border-gray-100"}`
+              }`}
           >
             <div
               ref={initMap}
@@ -537,9 +583,13 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
           type="button"
           onClick={handleFormSubmit}
           disabled={loading || isVerifying}
-          className="w-full mt-6 bg-[#13503B] text-white py-5 rounded-xl font-black uppercase tracking-[0.2em] text-xs disabled:opacity-30 shadow-2xl shadow-[#13503B]/20 transition-all active:scale-95 cursor-pointer hover:bg-[#0d3528]"
+          className={`w-full mt-6 py-4 font-bold uppercase tracking-widest text-xs transition-all duration-500 cursor-pointer active:scale-95 disabled:opacity-30
+            ${minimal
+              ? "bg-[#13503B] hover:bg-[#0d3528] text-white font-serif tracking-[0.2em] rounded-sm shadow-none border border-transparent"
+              : "bg-[#13503B] hover:bg-[#0d3528] text-white rounded-xl shadow-2xl shadow-[#13503B]/20"
+            }`}
         >
-          {loading || isVerifying ? "Processing..." : "Reveal My Estimate"}
+          {loading || isVerifying ? "Processing..." : submitButtonText}
         </button>
         {captchaError && (
           <p className="text-xs text-red-500 mt-2 font-bold">{captchaError}</p>

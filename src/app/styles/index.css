@@ -4,7 +4,7 @@
 @import "tailwindcss";
 
 /* Tell Tailwind v4 to scan these files */
-@source "../src/**/*.{ts,tsx}";
+@source "../../**/*.{ts,tsx}";
 
 .logo-glow {
   background: linear-gradient(90deg, #1f2937, #6b7280, #1f2937);

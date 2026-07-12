@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "../../../shared/ui/Button";
+import { ConsultOnlineModal } from "../../../features/consult-online/ui/ConsultOnlineModal";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const HomeHeader: React.FC = () => {
+  const queryClient = useQueryClient();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -90,6 +93,7 @@ export const HomeHeader: React.FC = () => {
           {/* Desktop CTA - Emerald Renaissance Edition */}
           <div className="hidden lg:flex items-center">
             <button
+              onClick={() => queryClient.setQueryData(["consultModalOpen"], true)}
               className="
               relative group overflow-hidden
               px-8 py-3.5 
@@ -254,12 +258,21 @@ export const HomeHeader: React.FC = () => {
 
           {/* Mobile CTA */}
           <div className="pt-4">
-            <Button variant="primary" size="lg" className="w-full rounded-sm">
+            <Button
+              variant="primary"
+              size="lg"
+              className="w-full rounded-sm"
+              onClick={() => {
+                queryClient.setQueryData(["consultModalOpen"], true);
+                setIsMobileMenuOpen(false);
+              }}
+            >
               Consult Online Now
             </Button>
           </div>
         </div>
       </div>
+      <ConsultOnlineModal />
     </header>
   );
 };
