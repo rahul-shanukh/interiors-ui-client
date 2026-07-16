@@ -1,21 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "../../../shared/ui/Button";
 import { ConsultOnlineModal } from "../../../features/consult-online/ui/ConsultOnlineModal";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { useScrollState } from "../../../shared/hooks/useScrollState";
+import logo from "../../../assets/logo/logo.jpeg";
 
 export const HomeHeader: React.FC = () => {
   const queryClient = useQueryClient();
-  const [isScrolled, setIsScrolled] = useState(false);
+  const navigate = useNavigate();
+  const isScrolled = useScrollState(10);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Detect scroll to add the subtle shadow
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Primary Nav Items
   const primaryLinks = ["Design Ideas", "Projects", "Store Locator", "More"];
@@ -44,7 +39,7 @@ export const HomeHeader: React.FC = () => {
             {/* Logo Image & Aura */}
             <div className="relative">
               <img
-                src="/jc-logo.png"
+                src={logo}
                 alt="JC Interiors Logo"
                 // Adjusted to valid Tailwind heights: h-16 (4rem), md:h-20 (5rem)
                 className="h-16 md:h-20 w-auto object-contain transition-all duration-700 ease-out transform drop-shadow-[0_4px_6px_rgba(19,80,59,0.15)] group-hover:-translate-y-1 group-hover:scale-105 group-hover:drop-shadow-[0_10px_20px_rgba(19,80,59,0.3)] z-10 relative"
@@ -75,25 +70,35 @@ export const HomeHeader: React.FC = () => {
 
           {/* Desktop Primary Nav - Emerald Renaissance Edition */}
           <nav className="hidden lg:flex items-center space-x-10 xl:space-x-12">
-            {primaryLinks.map((link) => (
-              <a
-                key={link}
-                href={`#${link.toLowerCase().replace(" ", "-")}`}
-                className="group relative py-2 text-[#13503B] uppercase text-xs xl:text-sm font-semibold tracking-[0.15em] transition-all duration-1000 ease-out hover:text-[#C5A059] hover:tracking-[0.25em]"
-                style={{ fontFamily: "'Cinzel', serif" }}
-              >
-                {link}
+            {primaryLinks.map((link) => {
+              const isDesignIdeas = link === "Design Ideas";
+              const targetUrl = isDesignIdeas ? "/design-ideas" : `#${link.toLowerCase().replace(" ", "-")}`;
 
-                {/* Subtle central expanding gold line */}
-                <span className="absolute left-1/2 bottom-0 h-[1px] w-0 -translate-x-1/2 bg-[#C5A059] opacity-0 transition-all duration-1000 ease-out group-hover:w-full group-hover:opacity-100"></span>
-              </a>
-            ))}
+              return (
+                <a
+                  key={link}
+                  href={targetUrl}
+                  onClick={(e) => {
+                    if (isDesignIdeas) {
+                      e.preventDefault();
+                      navigate(targetUrl);
+                    }
+                  }}
+                  className="group relative py-2 text-[#13503B] uppercase text-xs xl:text-sm font-semibold tracking-[0.15em] transition-all duration-1000 ease-out hover:text-[#C5A059] hover:tracking-[0.25em]"
+                  style={{ fontFamily: "'Cinzel', serif" }}
+                >
+                  {link}
+
+                  {/* Subtle central expanding gold line */}
+                  <span className="absolute left-1/2 bottom-0 h-[1px] w-0 -translate-x-1/2 bg-[#C5A059] opacity-0 transition-all duration-1000 ease-out group-hover:w-full group-hover:opacity-100"></span>
+                </a>
+              );
+            })}
           </nav>
 
           {/* Desktop CTA - Emerald Renaissance Edition */}
           <div className="hidden lg:flex items-center">
             <button
-              onClick={() => queryClient.setQueryData(["consultModalOpen"], true)}
               className="
               relative group overflow-hidden
               px-8 py-3.5 
@@ -104,7 +109,8 @@ export const HomeHeader: React.FC = () => {
               hover:bg-[#13503B] hover:text-[#F4F0EA] hover:border-[#13503B]
               hover:shadow-[0_0_20px_rgba(19,80,59,0.5)]
             "
-            >
+           
+           >
               <span className="relative z-10 flex items-center gap-2">
                 {/* Subtle classic star/sparkle icon */}
                 <svg
@@ -230,15 +236,27 @@ export const HomeHeader: React.FC = () => {
         <div className="px-4 py-6 space-y-6 overflow-y-auto max-h-[80vh]">
           {/* Mobile Primary Links */}
           <div className="space-y-4">
-            {primaryLinks.map((link) => (
-              <a
-                key={link}
-                href={`#${link.toLowerCase().replace(" ", "-")}`}
-                className="block text-lg font-medium text-gray-900"
-              >
-                {link}
-              </a>
-            ))}
+            {primaryLinks.map((link) => {
+              const isDesignIdeas = link === "Design Ideas";
+              const targetUrl = isDesignIdeas ? "/design-ideas" : `#${link.toLowerCase().replace(" ", "-")}`;
+              
+              return (
+                <a
+                  key={link}
+                  href={targetUrl}
+                  onClick={(e) => {
+                    if (isDesignIdeas) {
+                      e.preventDefault();
+                      setIsMobileMenuOpen(false);
+                      navigate(targetUrl);
+                    }
+                  }}
+                  className="block text-lg font-medium text-gray-900"
+                >
+                  {link}
+                </a>
+              );
+            })}
           </div>
 
           <hr className="border-gray-100" />

@@ -27,6 +27,12 @@ const AdminDashboard = lazy(() =>
   })),
 );
 
+const DesignIdeas = lazy(() =>
+  import("../../pages/SubHeaderList/DesignIdeas").then((m) => ({
+    default: m.DesignIdeas,
+  })),
+);
+
 // ✅ ADD THIS — Boards page lazy import
 const BoardPage = lazy(() => import("../../pages/admin/BoardPage"));
 
@@ -67,6 +73,7 @@ export const AppRouter = () => {
         <Routes>
           {/* ================= PUBLIC ZONE ================= */}
           <Route path="/" element={<HomePage />} />
+          <Route path="/design-ideas" element={<DesignIdeas />} />
 
           <Route path="/calculator" element={<CalculatorLayout />}>
             <Route path="full-home" element={<FullHomeCalculator />} />

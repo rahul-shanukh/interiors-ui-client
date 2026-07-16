@@ -3,6 +3,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 // Swiper modules
 import { Autoplay, Pagination, EffectFade } from "swiper/modules";
 import { Button } from "../../../shared/ui/Button";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Swiper CSS (Your global.d.ts makes this work!)
 import "swiper/css";
@@ -31,6 +32,8 @@ const slides = [
 ];
 
 export const HeroSection = () => {
+  const queryClient = useQueryClient();
+
   return (
     <section className="relative h-[80vh] md:h-[90vh] w-full bg-gray-900">
       <Swiper
@@ -61,30 +64,36 @@ export const HeroSection = () => {
             <div className="absolute inset-0 bg-black/50 z-10" />
 
             {/* Content (Unique per slide) */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-center px-4 max-w-4xl mx-auto">
-              <h1 className="text-4xl md:text-6xl font-serif text-white mb-6 leading-tight drop-shadow-lg">
-                {slide.title}
-              </h1>
-              <p className="text-base md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto drop-shadow-md">
-                From modern residential setups to ground-floor commercial spaces
-                in Warangal. Expertly crafted, on-time delivery.
-              </p>
+            <div className="absolute inset-0 grid grid-rows-[55%_45%] md:grid-rows-[60%_40%] z-20 text-center px-4 max-w-4xl mx-auto">
+              <div className="flex flex-col justify-end items-center pb-3 md:pb-4">
+                <h1 className="text-4xl md:text-6xl font-serif text-white leading-tight drop-shadow-lg w-full">
+                  {slide.title}
+                </h1>
+              </div>
+              
+              <div className="flex flex-col justify-start items-center pt-3 md:pt-4 w-full">
+                <p className="text-base md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto drop-shadow-md">
+                  From modern residential setups to ground-floor commercial spaces
+                  in Warangal. Expertly crafted, on-time delivery.
+                </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="w-full sm:w-auto shadow-lg"
-                >
-                  Get a Free Quote
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full sm:w-auto shadow-lg bg-black/20 backdrop-blur-sm"
-                >
-                  View Projects
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0">
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    className="w-full sm:w-auto shadow-lg"
+                    onClick={() => queryClient.setQueryData(["consultModalOpen"], true)}
+                  >
+                    Get a Free Quote
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full sm:w-auto shadow-lg bg-black/20 backdrop-blur-sm"
+                  >
+                    View Projects
+                  </Button>
+                </div>
               </div>
             </div>
           </SwiperSlide>
