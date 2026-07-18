@@ -2,7 +2,7 @@
 import { FaYoutube, FaFacebook, FaInstagram } from "react-icons/fa";
 import { motion } from "framer-motion";
 
-export default function SocialSidebar() {
+export default function SocialSidebar({ isVisible = true }: { isVisible?: boolean }) {
   const socials = [
     {
       name: "Facebook",
@@ -27,9 +27,9 @@ export default function SocialSidebar() {
   return (
     <motion.div
       initial={{ x: -80, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-      className="fixed left-0 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-6 py-8 px-4 bg-white/70 backdrop-blur-xl border-y border-r border-white shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-tr-[2rem] rounded-br-[2rem]"
+      animate={{ x: isVisible ? 0 : -80, opacity: isVisible ? 1 : 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className={`fixed left-0 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-6 py-8 px-4 bg-white/70 backdrop-blur-xl border-y border-r border-white shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-tr-[2rem] rounded-br-[2rem] ${!isVisible ? 'pointer-events-none' : ''}`}
     >
       {socials.map((social) => (
         <motion.a

@@ -5,10 +5,19 @@ import { CustomerReviews } from "./ui/FeaturesGrid";
 import { ProjectJourneySection } from "./ui/DeepDiveSection";
 import { FaqSection } from "./ui/FaqSection";
 import { HomeFooter } from "./ui/HomeFooter";
+import { useRef } from "react";
+import { useInView } from "framer-motion";
 import FloatWhatsapp from "../../features/communication/FloatWhatsapp";
 import SocialSidebar from "../../features/communication/SocialSidebar";
 
 export const HomePage = () => {
+  const faqRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const isFaqInView = useInView(faqRef);
+  const isFooterInView = useInView(footerRef);
+
+  const showSidebar = !isFaqInView && !isFooterInView;
+
   return (
     <>
       <HomeHeader />
@@ -17,11 +26,15 @@ export const HomePage = () => {
         <PriceCalculatorTeaser />
         <CustomerReviews />
         <ProjectJourneySection />
-        <FaqSection />
+        <div ref={faqRef}>
+          <FaqSection />
+        </div>
       </main>
-      <HomeFooter />
+      <div ref={footerRef}>
+        <HomeFooter />
+      </div>
       <FloatWhatsapp />
-      <SocialSidebar />
+      <SocialSidebar isVisible={showSidebar} />
     </>
   );
 };
