@@ -19,6 +19,10 @@ export type UploadCategory = (typeof UPLOAD_CATEGORIES)[number]["key"];
 export type UploadStatus = "uploading" | "ready" | "failed";
 export type UploadKind = "image" | "file" | "video" | "pdf";
 
+export type UploadFlowStep =
+  "SELECT" | "UPLOADING" | "CONFIGURING" | "COMPLETE";
+export type Visibility = "public" | "private";
+
 // 3. The Nested Objects
 export type Dimensions = {
   width: number;
