@@ -46,7 +46,7 @@ const faqData: FAQ[] = [
   },
 ];
 
-export const FaqSection = () => {
+export const FaqSection = ({ theme = "default" }: { theme?: "default" | "about" }) => {
   const [activeCategory, setActiveCategory] = useState("Warranty");
 
   const [activeId, setActiveId] = useState<string | null>(
@@ -74,31 +74,51 @@ export const FaqSection = () => {
   }, [searchQuery, activeCategory]);
 
   return (
-    <section className="relative py-16 bg-gradient-to-br from-[#E0E5EC] via-[#EEF2F7] to-[#E0E5EC] overflow-hidden font-sans flex flex-col items-center text-slate-800">
+    <section className={`relative py-16 overflow-hidden flex flex-col items-center ${
+      theme === "about"
+        ? "bg-[#fdfbf7] text-[#4a3f35] font-sans"
+        : "bg-gradient-to-br from-[#E0E5EC] via-[#EEF2F7] to-[#E0E5EC] text-slate-800 font-sans"
+    }`}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center gap-2 mb-4 bg-[#E0E5EC] rounded-full px-5 py-2 shadow-[inset_3px_3px_6px_#A3B1C6,inset_-3px_-3px_6px_#FFFFFF]">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"></span>
+          <div className={`inline-flex items-center justify-center gap-2 mb-4 rounded-full px-5 py-2 ${
+            theme === "about"
+              ? "bg-[#4a3f35]/5 border border-[#4a3f35]/10"
+              : "bg-[#E0E5EC] shadow-[inset_3px_3px_6px_#A3B1C6,inset_-3px_-3px_6px_#FFFFFF]"
+          }`}>
+            <span className={`w-2.5 h-2.5 rounded-full ${
+              theme === "about" ? "bg-[#C5A059]" : "bg-blue-500 shadow-[inset_1px_1px_2px_rgba(0,0,0,0.3)]"
+            }`}></span>
             <span
-              className="text-slate-500 text-xs font-bold tracking-widest uppercase"
-              style={{ textShadow: "1px 1px 0px #FFF" }}
+              className={`text-xs font-bold tracking-widest uppercase ${
+                theme === "about" ? "text-[#4a3f35]/70" : "text-slate-500"
+              }`}
+              style={theme === "about" ? {} : { textShadow: "1px 1px 0px #FFF" }}
             >
               Knowledge Base
             </span>
           </div>
 
           <h2
-            className="text-3xl md:text-4xl font-extrabold text-slate-700 tracking-tight mb-4"
-            style={{
+            className={`text-3xl md:text-4xl font-bold tracking-tight mb-4 ${
+              theme === "about" ? "text-[#4a3f35]" : "text-slate-700"
+            }`}
+            style={theme === "about" ? { fontFamily: "'Cinzel', serif" } : {
               textShadow:
                 "2px 2px 4px rgba(163,177,198,0.5), -2px -2px 4px #FFFFFF",
             }}
           >
-            Frequently Asked <span className="text-blue-600">Questions</span>
+            {theme === "about" ? (
+              <>Frequently Asked <span className="text-[#C5A059]">Questions</span></>
+            ) : (
+              <>Frequently Asked <span className="text-blue-600">Questions</span></>
+            )}
           </h2>
 
-          <p className="text-slate-500 text-sm max-w-2xl mx-auto font-medium">
+          <p className={`text-sm max-w-2xl mx-auto ${
+            theme === "about" ? "text-[#4a3f35]/80 font-light" : "text-slate-500 font-medium"
+          }`}>
             Everything you need to know about our process, pricing, and
             guarantees.
           </p>
@@ -108,7 +128,7 @@ export const FaqSection = () => {
         <div className="relative mb-8 group">
           <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
             <svg
-              className="h-5 w-5 text-slate-400"
+              className={`h-5 w-5 ${theme === "about" ? "text-[#4a3f35]/40" : "text-slate-400"}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -124,7 +144,11 @@ export const FaqSection = () => {
 
           <input
             type="text"
-            className="w-full bg-[#E0E5EC] rounded-2xl py-4 pl-14 pr-4 text-sm text-slate-700 placeholder-slate-400 focus:outline-none transition-all duration-300 border-none shadow-[inset_6px_6px_12px_#A3B1C6,inset_-6px_-6px_12px_#FFFFFF]"
+            className={`w-full rounded-2xl py-4 pl-14 pr-4 text-sm focus:outline-none transition-all duration-300 ${
+              theme === "about"
+                ? "bg-white border border-[#4a3f35]/15 text-[#4a3f35] placeholder-[#4a3f35]/40 focus:border-[#C5A059]"
+                : "bg-[#E0E5EC] text-slate-700 placeholder-slate-400 border-none shadow-[inset_6px_6px_12px_#A3B1C6,inset_-6px_-6px_12px_#FFFFFF]"
+            }`}
             placeholder="Search questions or keywords..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -151,8 +175,12 @@ export const FaqSection = () => {
                 }}
                 className={`whitespace-nowrap px-5 md:px-6 py-2 md:py-2.5 rounded-full text-[10px] md:text-xs font-bold tracking-wide transition-all duration-300 ${
                   isActive
-                    ? "text-blue-600 shadow-[inset_4px_4px_8px_#A3B1C6,inset_-4px_-4px_8px_#FFFFFF]"
-                    : "text-slate-500 shadow-[6px_6px_12px_#A3B1C6,-6px_-6px_12px_#FFFFFF] hover:text-slate-700"
+                    ? theme === "about"
+                      ? "bg-[#C5A059] text-white border border-[#C5A059] shadow-sm"
+                      : "text-blue-600 shadow-[inset_4px_4px_8px_#A3B1C6,inset_-4px_-4px_8px_#FFFFFF]"
+                    : theme === "about"
+                      ? "bg-white text-[#4a3f35] border border-[#4a3f35]/15 hover:border-[#C5A059] hover:text-[#C5A059]"
+                      : "text-slate-500 shadow-[6px_6px_12px_#A3B1C6,-6px_-6px_12px_#FFFFFF] hover:text-slate-700"
                 }`}
               >
                 {cat}
@@ -170,23 +198,34 @@ export const FaqSection = () => {
               return (
                 <div
                   key={faq.id}
-                  className="relative overflow-hidden rounded-2xl bg-[#E0E5EC] transition-all duration-500 shadow-[10px_10px_20px_#A3B1C6,-10px_-10px_20px_#FFFFFF] hover:shadow-[14px_14px_28px_#A3B1C6,-14px_-14px_28px_#FFFFFF] border border-white/40"
+                  className={`relative overflow-hidden rounded-2xl transition-all duration-500 border ${
+                    theme === "about"
+                      ? "bg-white border-[#4a3f35]/10 hover:border-[#C5A059]/40 shadow-sm hover:shadow-md"
+                      : "bg-[#E0E5EC] shadow-[10px_10px_20px_#A3B1C6,-10px_-10px_20px_#FFFFFF] hover:shadow-[14px_14px_28px_#A3B1C6,-14px_-14px_28px_#FFFFFF] border-white/40"
+                  }`}
                 >
                   <button
                     onClick={() => setActiveId(isActive ? null : faq.id)}
                     className="w-full flex items-center justify-between p-5 md:p-6 text-left focus:outline-none"
                   >
                     <div className="flex flex-col gap-1 pr-4">
-                      <span className="text-blue-500 text-[0.6rem] md:text-[0.65rem] font-bold tracking-widest uppercase">
+                      <span className={`text-[0.6rem] md:text-[0.65rem] font-bold tracking-widest uppercase ${
+                        theme === "about" ? "text-[#C5A059]" : "text-blue-500"
+                      }`}>
                         {faq.category}
                       </span>
 
                       <span
                         className={`text-xs md:text-base font-bold transition-all duration-300 ${
                           isActive
-                            ? "text-blue-700 tracking-wide"
-                            : "text-slate-700"
+                            ? theme === "about"
+                              ? "text-[#C5A059] tracking-wide"
+                              : "text-blue-700 tracking-wide"
+                            : theme === "about"
+                              ? "text-[#4a3f35]"
+                              : "text-slate-700"
                         }`}
+                        style={theme === "about" ? { fontFamily: "'Cinzel', serif" } : {}}
                       >
                         {faq.question}
                       </span>
@@ -195,8 +234,12 @@ export const FaqSection = () => {
                     <div
                       className={`shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-all duration-500 ${
                         isActive
-                          ? "shadow-[inset_3px_3px_6px_#A3B1C6,inset_-3px_-3px_6px_#FFFFFF] text-blue-600 rotate-180"
-                          : "shadow-[4px_4px_8px_#A3B1C6,-4px_-4px_8px_#FFFFFF] text-slate-500"
+                          ? theme === "about"
+                            ? "bg-[#C5A059] text-white rotate-180"
+                            : "shadow-[inset_3px_3px_6px_#A3B1C6,inset_-3px_-3px_6px_#FFFFFF] text-blue-600 rotate-180"
+                          : theme === "about"
+                            ? "bg-[#4a3f35]/5 text-[#4a3f35]"
+                            : "shadow-[4px_4px_8px_#A3B1C6,-4px_-4px_8px_#FFFFFF] text-slate-500"
                       }`}
                     >
                       <svg
@@ -224,7 +267,9 @@ export const FaqSection = () => {
                   >
                     <div className="overflow-hidden">
                       <div className="px-5 md:px-6 pb-5 md:pb-6 pt-2">
-                        <p className="text-slate-600 text-xs md:text-sm leading-relaxed font-medium">
+                        <p className={`text-xs md:text-sm leading-relaxed ${
+                          theme === "about" ? "text-[#4a3f35]/80 font-light" : "text-slate-600 font-medium"
+                        }`}>
                           {faq.answer}
                         </p>
                       </div>
@@ -234,11 +279,15 @@ export const FaqSection = () => {
               );
             })
           ) : (
-            <div className="text-center py-12 rounded-2xl shadow-[inset_6px_6px_12px_#A3B1C6,inset_-6px_-6px_12px_#FFFFFF]">
-              <h3 className="text-slate-700 text-sm font-bold mb-1">
+            <div className={`text-center py-12 rounded-2xl ${
+              theme === "about"
+                ? "bg-white border border-[#4a3f35]/10 shadow-sm"
+                : "shadow-[inset_6px_6px_12px_#A3B1C6,inset_-6px_-6px_12px_#FFFFFF]"
+            }`}>
+              <h3 className={`text-sm font-bold mb-1 ${theme === "about" ? "text-[#4a3f35]" : "text-slate-700"}`}>
                 No questions found
               </h3>
-              <p className="text-slate-500 text-xs font-medium">
+              <p className={`text-xs ${theme === "about" ? "text-[#4a3f35]/60" : "text-slate-500 font-medium"}`}>
                 Try adjusting your search terms.
               </p>
             </div>

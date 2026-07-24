@@ -33,8 +33,16 @@ const DesignIdeas = lazy(() =>
   })),
 );
 
+const StoreLocator = lazy(() => import("../../pages/SubHeaderList/StoreLocator"));
+
 // ✅ ADD THIS — Boards page lazy import
 const BoardPage = lazy(() => import("../../pages/admin/BoardPage"));
+
+const AboutUs = lazy(() =>
+  import("../../pages/home/ui/About/AboutUs").then((m) => ({
+    default: m.AboutUs,
+  })),
+);
 
 const UploadsPage = lazy(() => import("../../pages/admin/board/UploadsPage"));
 
@@ -74,6 +82,8 @@ export const AppRouter = () => {
           {/* ================= PUBLIC ZONE ================= */}
           <Route path="/" element={<HomePage />} />
           <Route path="/design-ideas" element={<DesignIdeas />} />
+          <Route path="/store-locator" element={<StoreLocator />} />
+          <Route path="/about-us" element={<AboutUs />} />
 
           <Route path="/calculator" element={<CalculatorLayout />}>
             <Route path="full-home" element={<FullHomeCalculator />} />
