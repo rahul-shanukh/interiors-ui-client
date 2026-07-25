@@ -44,11 +44,18 @@ const ThemeHeader = () => {
 
         <nav className={`hidden md:flex gap-10 text-xs font-semibold uppercase tracking-[0.15em] transition-colors duration-500 ${isScrolled ? 'text-[#4a3f35]' : 'text-white/90'}`}>
           {primaryLinks.filter(link => link !== "Design Ideas").map((link) => {
-            const targetUrl = `/#${link.toLowerCase().replace(" ", "-")}`;
+            const isStoreLocator = link === "Store Locator";
+            const targetUrl = isStoreLocator ? "/store-locator" : `/#${link.toLowerCase().replace(" ", "-")}`;
             return (
               <a
                 key={link}
                 href={targetUrl}
+                onClick={(e) => {
+                  if (isStoreLocator) {
+                    e.preventDefault();
+                    navigate(targetUrl);
+                  }
+                }}
                 className="hover:opacity-60 transition-opacity"
               >
                 {link}
@@ -232,8 +239,8 @@ export const DesignIdeas = () => {
           </div>
         </div>
       </section>
-      <FaqSection />
-      <HomeFooter />
+      <FaqSection theme="about" />
+      <HomeFooter theme="about" />
     </div>
   );
 };

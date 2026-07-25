@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { Button } from "../../../shared/ui/Button";
 import { ConsultOnlineModal } from "../../../features/consult-online/ui/ConsultOnlineModal";
-import { useQueryClient } from "@tanstack/react-query";
+
 import { useNavigate } from "react-router-dom";
 import { useScrollState } from "../../../shared/hooks/useScrollState";
 import logo from "../../../assets/logo/logo.jpeg";
 
 export const HomeHeader: React.FC = () => {
-  const queryClient = useQueryClient();
+
   const navigate = useNavigate();
   const isScrolled = useScrollState(10);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -24,9 +24,8 @@ export const HomeHeader: React.FC = () => {
 
   return (
     <header
-      className={`fixed top-0 w-full z-50 transition-all duration-300 bg-gray-300 ${
-        isScrolled ? "shadow-md" : "border-b border-gray-100"
-      }`}
+      className={`fixed top-0 w-full z-50 transition-all duration-300 bg-gray-300 ${isScrolled ? "shadow-md" : "border-b border-gray-100"
+        }`}
     >
       {/* Tier 1: Main Navigation */}
       <div className="w-full px-6 lg:px-6">
@@ -72,14 +71,19 @@ export const HomeHeader: React.FC = () => {
           <nav className="hidden lg:flex items-center space-x-10 xl:space-x-12">
             {primaryLinks.map((link) => {
               const isDesignIdeas = link === "Design Ideas";
-              const targetUrl = isDesignIdeas ? "/design-ideas" : `#${link.toLowerCase().replace(" ", "-")}`;
+              const isStoreLocator = link === "Store Locator";
+              const targetUrl = isDesignIdeas 
+                ? "/design-ideas" 
+                : isStoreLocator 
+                  ? "/store-locator" 
+                  : `#${link.toLowerCase().replace(" ", "-")}`;
 
               return (
                 <a
                   key={link}
                   href={targetUrl}
                   onClick={(e) => {
-                    if (isDesignIdeas) {
+                    if (isDesignIdeas || isStoreLocator) {
                       e.preventDefault();
                       navigate(targetUrl);
                     }
@@ -99,6 +103,7 @@ export const HomeHeader: React.FC = () => {
           {/* Desktop CTA - Emerald Renaissance Edition */}
           <div className="hidden lg:flex items-center">
             <button
+              onClick={() => navigate('/about-us')}
               className="
               relative group overflow-hidden
               px-8 py-3.5 
@@ -109,8 +114,8 @@ export const HomeHeader: React.FC = () => {
               hover:bg-[#13503B] hover:text-[#F4F0EA] hover:border-[#13503B]
               hover:shadow-[0_0_20px_rgba(19,80,59,0.5)]
             "
-           
-           >
+
+            >
               <span className="relative z-10 flex items-center gap-2">
                 {/* Subtle classic star/sparkle icon */}
                 <svg
@@ -120,7 +125,7 @@ export const HomeHeader: React.FC = () => {
                 >
                   <path d="M12 2L14.39 9.61L22 12L14.39 14.39L12 22L9.61 14.39L2 12L9.61 9.61L12 2Z" />
                 </svg>
-                Consult Online Now
+                More About Us
               </span>
 
               {/* Elegant sweeping glass/shine effect on hover */}
@@ -150,30 +155,27 @@ export const HomeHeader: React.FC = () => {
                 {/* Top Line */}
                 <span
                   className={`absolute left-0 h-[1.5px] bg-[#C5A059] transition-all duration-500 ease-in-out
-                    ${
-                      isMobileMenuOpen
-                        ? "top-1/2 -translate-y-1/2 rotate-45 w-full"
-                        : "top-0 w-full"
+                    ${isMobileMenuOpen
+                      ? "top-1/2 -translate-y-1/2 rotate-45 w-full"
+                      : "top-0 w-full"
                     }`}
                 />
 
                 {/* Middle Line - Shoots out to the right when opened */}
                 <span
                   className={`absolute left-0 top-1/2 -translate-y-1/2 h-[1.5px] bg-[#C5A059] transition-all duration-400 ease-in-out
-                    ${
-                      isMobileMenuOpen
-                        ? "opacity-0 translate-x-4 w-0"
-                        : "opacity-100 w-full group-hover:translate-x-0.5"
+                    ${isMobileMenuOpen
+                      ? "opacity-0 translate-x-4 w-0"
+                      : "opacity-100 w-full group-hover:translate-x-0.5"
                     }`}
                 />
 
                 {/* Bottom Line - Asymmetrical in resting state, full width on hover/open */}
                 <span
                   className={`absolute left-0 h-[1.5px] bg-[#C5A059] transition-all duration-500 ease-in-out
-                    ${
-                      isMobileMenuOpen
-                        ? "top-1/2 -translate-y-1/2 -rotate-45 w-full"
-                        : "bottom-0 w-3/4 group-hover:w-full"
+                    ${isMobileMenuOpen
+                      ? "top-1/2 -translate-y-1/2 -rotate-45 w-full"
+                      : "bottom-0 w-3/4 group-hover:w-full"
                     }`}
                 />
               </div>
@@ -229,23 +231,27 @@ export const HomeHeader: React.FC = () => {
 
       {/* Mobile Menu Drawer (Combines both tiers) */}
       <div
-        className={`lg:hidden absolute top-full left-0 w-full bg-white shadow-xl transition-all duration-300 overflow-hidden ${
-          isMobileMenuOpen ? "max-h-[80vh] border-t border-gray-100" : "max-h-0"
-        }`}
+        className={`lg:hidden absolute top-full left-0 w-full bg-white shadow-xl transition-all duration-300 overflow-hidden ${isMobileMenuOpen ? "max-h-[80vh] border-t border-gray-100" : "max-h-0"
+          }`}
       >
         <div className="px-4 py-6 space-y-6 overflow-y-auto max-h-[80vh]">
           {/* Mobile Primary Links */}
           <div className="space-y-4">
             {primaryLinks.map((link) => {
               const isDesignIdeas = link === "Design Ideas";
-              const targetUrl = isDesignIdeas ? "/design-ideas" : `#${link.toLowerCase().replace(" ", "-")}`;
-              
+              const isStoreLocator = link === "Store Locator";
+              const targetUrl = isDesignIdeas 
+                ? "/design-ideas" 
+                : isStoreLocator 
+                  ? "/store-locator" 
+                  : `#${link.toLowerCase().replace(" ", "-")}`;
+
               return (
                 <a
                   key={link}
                   href={targetUrl}
                   onClick={(e) => {
-                    if (isDesignIdeas) {
+                    if (isDesignIdeas || isStoreLocator) {
                       e.preventDefault();
                       setIsMobileMenuOpen(false);
                       navigate(targetUrl);
@@ -281,7 +287,7 @@ export const HomeHeader: React.FC = () => {
               size="lg"
               className="w-full rounded-sm"
               onClick={() => {
-                queryClient.setQueryData(["consultModalOpen"], true);
+                navigate('/about-us');
                 setIsMobileMenuOpen(false);
               }}
             >
