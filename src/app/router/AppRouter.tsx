@@ -5,12 +5,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "../guards/ProtectedRoute";
 import { CalculatorLayout } from "../../features/calculator/CalculatorLayout";
 
-const MainLayout = lazy(() =>
-  import("../../shared/layouts/MainLayout").then((m) => ({
-    default: m.MainLayout,
-  })),
-);
-
 const HomePage = lazy(() =>
   import("../../pages/home/HomePage").then((m) => ({ default: m.HomePage })),
 );
@@ -45,10 +39,6 @@ const AboutUs = lazy(() =>
 );
 
 const UploadsPage = lazy(() => import("../../pages/admin/board/UploadsPage"));
-
-const CreateEmployeePage = lazy(
-  () => import("../../pages/employee/CreateEmployeePage"),
-);
 
 const FullHomeCalculator = lazy(() =>
   import("../../features/calculator/components/FullHomeCalculator").then(
@@ -96,28 +86,23 @@ export const AppRouter = () => {
 
         {/* ================= PRIVATE ZONE ================= */}
         <Route element={<ProtectedRoute />}>
-          <Route element={<MainLayout />}>
-            <Route path="/profile" element={<div>My Profile</div>} />
+          <Route path="/profile" element={<div>My Profile</div>} />
 
-            {/* ADMIN ONLY */}
-            <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
-              <Route
-                path="/admin/register-employee"
-                element={<CreateEmployeePage />}
-              />
-            </Route>
-
-            {/* EMPLOYEE + ADMIN */}
-            <Route
-              element={<ProtectedRoute allowedRoles={["EMPLOYEE", "ADMIN"]} />}
-            >
-              <Route path="/workspace" element={<div>My Workspace</div>} />
-            </Route>
+          {/* ADMIN ONLY */}
+          <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+            <Route path="/admin/register-employee" />
           </Route>
 
-          {/* ✅ Boards route (uses DashboardLayout, so it sits outside MainLayout) */}
-          <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}></Route>
+          {/* EMPLOYEE + ADMIN */}
+          <Route
+            element={<ProtectedRoute allowedRoles={["EMPLOYEE", "ADMIN"]} />}
+          >
+            <Route path="/workspace" element={<div>My Workspace</div>} />
+          </Route>
         </Route>
+
+        {/* ✅ Boards route (uses DashboardLayout, so it sits outside MainLayout) */}
+        <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}></Route>
 
         {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" replace />} />

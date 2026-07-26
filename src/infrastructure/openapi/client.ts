@@ -1,3 +1,5 @@
+//Frontend\interiors-ui-client\src\infrastructure\openapi\client.ts
+
 import createClient from "openapi-fetch";
 import { API_BASE_URL } from "../config/env";
 import type { paths } from "./schema";
