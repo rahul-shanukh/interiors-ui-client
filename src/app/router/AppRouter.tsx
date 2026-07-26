@@ -4,6 +4,8 @@ import { lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "../guards/ProtectedRoute";
 import { CalculatorLayout } from "../../features/calculator/CalculatorLayout";
+import { DesignIdeas } from "../../pages/SubHeaderList/DesignIdeas";
+import StoreLocator from "../../pages/SubHeaderList/StoreLocator";
 
 const HomePage = lazy(() =>
   import("../../pages/home/HomePage").then((m) => ({ default: m.HomePage })),
@@ -13,23 +15,6 @@ const LoginPage = lazy(() =>
   import("../../pages/auth/LoginPage").then((m) => ({ default: m.LoginPage })),
 );
 
-<<<<<<< HEAD
-const AdminDashboard = lazy(() =>
-  import("../../pages/admin/AdminDashboard").then((m) => ({
-    default: m.AdminDashboard,
-  })),
-);
-
-const DesignIdeas = lazy(() =>
-  import("../../pages/SubHeaderList/DesignIdeas").then((m) => ({
-    default: m.DesignIdeas,
-  })),
-);
-
-const StoreLocator = lazy(() => import("../../pages/SubHeaderList/StoreLocator"));
-
-=======
->>>>>>> f3bf31b (removed kanban board files)
 // ✅ ADD THIS — Boards page lazy import
 
 const AboutUs = lazy(() =>
@@ -68,12 +53,12 @@ export const AppRouter = () => {
   return (
     <BrowserRouter>
       {/* <Suspense fallback={<PageLoader />}> */}
-        <Routes>
-          {/* ================= PUBLIC ZONE ================= */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/design-ideas" element={<DesignIdeas />} />
-          <Route path="/store-locator" element={<StoreLocator />} />
-          <Route path="/about-us" element={<AboutUs />} />
+      <Routes>
+        {/* ================= PUBLIC ZONE ================= */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/design-ideas" element={<DesignIdeas />} />
+        <Route path="/store-locator" element={<StoreLocator />} />
+        <Route path="/about-us" element={<AboutUs />} />
 
         <Route path="/calculator" element={<CalculatorLayout />}>
           <Route path="full-home" element={<FullHomeCalculator />} />
