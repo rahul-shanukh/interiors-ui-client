@@ -8,14 +8,19 @@ import {
 
 export default function UploadsPage() {
   // Default to the first category (Kitchen)
+
   const [activeCategory, setActiveCategory] = useState<UploadCategory>(
     UPLOAD_CATEGORIES[0].key,
   );
+
+  // const [flowStep, setFlowStep] = useState<UploadFlowStep>("SELECT");
   const [stagedFiles, setStagedFiles] = useState<File[]>([]);
 
   const handleFilesSelected = (files: File[]) => {
     setStagedFiles(files);
   };
+
+  // const hasFiles = stagedFiles.length > 0;
 
   return (
     <div className="p-8 h-full flex flex-col max-w-5xl mx-auto w-full">
@@ -33,7 +38,7 @@ export default function UploadsPage() {
       {/* Category Tabs */}
       <div className="mb-8">
         <h3 className="text-sm font-semibold text-slate-600 mb-3 uppercase tracking-wider">
-          1. Select Category
+          Select Category
         </h3>
         <div className="flex flex-wrap gap-2">
           {UPLOAD_CATEGORIES.map((cat) => (
@@ -53,10 +58,17 @@ export default function UploadsPage() {
         </div>
       </div>
 
+      <div className="mb-8">
+        <h3 className="text-sm font-semibold text-slate-600 mb-3 uppercase tracking-wider">
+          Asset Details
+        </h3>
+      </div>
+
       {/* Upload Zone */}
+
       <div className="max-w-2xl">
         <h3 className="text-sm font-semibold text-slate-600 mb-3 uppercase tracking-wider">
-          2. Upload Files
+          Upload Files
         </h3>
         <UploadDropzone
           selectedCategory={activeCategory}
@@ -64,7 +76,8 @@ export default function UploadsPage() {
         />
         {stagedFiles.length > 0 && (
           <p className="mt-3 text-sm text-slate-500">
-            {stagedFiles.length} file{stagedFiles.length === 1 ? "" : "s"} selected
+            {stagedFiles.length} file{stagedFiles.length === 1 ? "" : "s"}{" "}
+            selected
           </p>
         )}
       </div>

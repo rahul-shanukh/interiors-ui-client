@@ -54,7 +54,7 @@ export const getRecaptchaToken = async (
   action = "quote_submit",
 ): Promise<string> => {
   const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY as string | undefined;
-
+  console.log(import.meta.env.VITE_RECAPTCHA_SITE_KEY);
   if (!siteKey) {
     throw new Error("VITE_RECAPTCHA_SITE_KEY is not configured");
   }
