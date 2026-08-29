@@ -41,7 +41,7 @@ const BHK_ROOM_CONFIGS: Record<
       dining: 0,
     },
     maxLiving: 2,
-    maxKitchen: 2,
+    maxKitchen: 1,
     maxBedrooms: 1,
     maxBathrooms: 1,
     maxDining: 1,
@@ -101,7 +101,7 @@ export const FullHomeCalculator = () => {
   const [step, setStep] = useState(1);
   const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null);
   const navigate = useNavigate();
-  const { mutateAsync, isPending } = useQuote();
+  const { mutateAsync, isPending, isError } = useQuote();
 
   const [buildData, setBuildData] = useState<CalculatorBuildData>({
     bhkType: null,
@@ -131,6 +131,7 @@ export const FullHomeCalculator = () => {
 
   const submitToBackend = async (customerDetails: CustomerDetails) => {
     const finalPayload: QuoteRequest = {
+      calculatorType: "fullHome",
       bhkType: buildData.bhkType || "",
       areaSize: buildData.areaSize || "",
       rooms: buildData.rooms,
@@ -255,7 +256,15 @@ export const FullHomeCalculator = () => {
             />
           )}
           {step === 4 && (
-            <Step4Quote onSubmit={submitToBackend} loading={isPending} />
+            <Step4Quote
+              onSubmit={submitToBackend}
+              loading={isPending}
+              submitError={
+                isError
+                  ? "We couldn't generate your estimate. Please try again."
+                  : null
+              }
+            />
           )}
           {step === 5 && estimatedPrice !== null && (
             <Step5Result price={estimatedPrice} />
@@ -627,33 +636,36 @@ const Step2Rooms = ({
   );
 };
 
-const Step3Package = ({
-  current,
-  onSelect,
-}: {
+interface Step3PackageProps {
   current: string | null;
   onSelect: (val: string) => void;
+}
+
+export const Step3Package: React.FC<Step3PackageProps> = ({
+  current,
+  onSelect,
 }) => {
   const packages = [
     {
       name: "Essential",
       desc: "Best value with standard premium materials.",
       tag: "Budget Friendly",
-      image: getAssetUrl(ASSETS.calculator.packages.general.essential),
+      images: ASSETS.calculator.packages.general.essential,
     },
     {
       name: "Premium",
       desc: "High-quality finishes with designer touches.",
       tag: "Most Popular",
-      image: getAssetUrl(ASSETS.calculator.packages.general.premium),
+      images: ASSETS.calculator.packages.general.premium,
     },
     {
       name: "Luxury",
       desc: "Elite imported materials and customized luxury.",
       tag: "Signature",
-      image: getAssetUrl(ASSETS.calculator.packages.general.luxe),
+      images: ASSETS.calculator.packages.general.luxe,
     },
   ];
+
   return (
     <div className="text-center animate-fadeIn">
       <h2 className="text-3xl font-serif font-bold text-[#13503B] mb-2">
@@ -667,6 +679,7 @@ const Step3Package = ({
         {packages.map((pkg) => (
           <button
             key={pkg.name}
+            type="button"
             onClick={() => onSelect(pkg.name)}
             className={`relative w-full text-left rounded-2xl border-2 transition-all duration-300 flex flex-col sm:flex-row gap-0 cursor-pointer overflow-hidden ${
               current === pkg.name
@@ -674,11 +687,18 @@ const Step3Package = ({
                 : "border-gray-100 hover:border-[#13503B] bg-white hover:shadow-md hover:scale-[1.01]"
             }`}
           >
-            <img
-              src={pkg.image}
-              alt={pkg.name}
-              className="w-full h-40 sm:w-36 sm:h-32 object-cover flex-shrink-0"
-            />
+            {/* Optimized Picture Element with Browser-Native AVIF / WebP Selection */}
+            <picture className="w-full h-40 sm:w-36 sm:h-32 shrink-0">
+              <source srcSet={getAssetUrl(pkg.images.avif)} type="image/avif" />
+              <img
+                src={getAssetUrl(pkg.images.fallback)}
+                alt={pkg.name}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover"
+              />
+            </picture>
+
             <div className="flex-1 p-5 md:p-6 min-w-0 flex flex-col justify-center relative">
               {pkg.tag && (
                 <span className="absolute top-4 right-4 sm:top-6 sm:right-6 text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1 bg-[#13503B]/5 rounded-full text-[#13503B]">
@@ -701,9 +721,11 @@ const Step3Package = ({
 const Step4Quote = ({
   onSubmit,
   loading,
+  submitError,
 }: {
   onSubmit: (data: CustomerDetails) => void;
   loading: boolean;
+  submitError: string | null;
 }) => {
   return (
     <QuoteContactStep
@@ -711,6 +733,7 @@ const Step4Quote = ({
       loading={loading}
       headingText="Almost ready!"
       descriptionText="Enter your details to reveal your personalized interior estimate."
+      submitError={submitError}
     />
   );
 };

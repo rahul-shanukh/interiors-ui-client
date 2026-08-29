@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
-import { type ZodIssue } from "zod";
+// import { type ZodIssue } from "zod";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import {
@@ -36,6 +36,7 @@ interface QuoteContactStepProps {
   descriptionText?: string;
   submitButtonText?: string;
   minimal?: boolean;
+  submitError?: string | null;
 }
 
 interface NominatimSearchResult {
@@ -61,6 +62,7 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
   descriptionText = "Enter your details to reveal your personalized estimate.",
   submitButtonText = "Reveal My Estimate",
   minimal = false,
+  submitError = null,
 }) => {
   const [form, setForm] = useState<CustomerDetails>({
     name: "",
@@ -283,7 +285,7 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
 
     if (!parseResult.success) {
       const fieldErrors: Record<string, string> = {};
-      parseResult.error.issues.forEach((err: ZodIssue) => {
+      parseResult.error.issues.forEach((err) => {
         const firstPath = err.path[0];
         if (typeof firstPath === "string") {
           fieldErrors[firstPath] = err.message;
@@ -626,6 +628,9 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
         >
           {loading || isVerifying ? "Processing..." : submitButtonText}
         </button>
+        {submitError && (
+          <p className="text-xs text-red-500 mt-2 font-bold">{submitError}</p>
+        )}
         {captchaError && (
           <p className="text-xs text-red-500 mt-2 font-bold">{captchaError}</p>
         )}

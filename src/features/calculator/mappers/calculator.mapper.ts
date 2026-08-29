@@ -31,6 +31,7 @@ export const mapKitchenUiToQuoteRequest = ({
       .join(", ") + ` (Total: ${totalLength}ft)`;
 
   return {
+    calculatorType: "kitchen",
     bhkType: `Kitchen (${layoutNameMap[selectedLayoutId] || "Custom"})`,
     areaSize: areaSizeString,
     rooms: { living: 0, kitchen: 1, bedroom: 0, bathroom: 0, dining: 0 },

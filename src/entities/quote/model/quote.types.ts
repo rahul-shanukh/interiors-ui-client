@@ -27,6 +27,7 @@ export interface CalculatorBuildData {
 
 // This matches what the API expects
 export interface QuoteRequest {
+  calculatorType: "kitchen" | "fullHome" | "wardrobe";
   bhkType: string;
   areaSize: string;
   rooms: RoomCounts;

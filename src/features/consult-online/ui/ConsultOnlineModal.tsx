@@ -74,7 +74,7 @@ export const ConsultOnlineModal: React.FC = () => {
                   headingText="Book Free Consultation"
                   descriptionText="Enter your details and pin your site to request an expert design consultation."
                   submitButtonText="Submit"
-                  minimal={true}
+                  minimal={true} 
                 />
               </div>
             ) : (

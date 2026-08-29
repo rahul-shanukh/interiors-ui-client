@@ -13,29 +13,29 @@ import type {
   CustomerDetails,
 } from "../../../entities/quote/model/quote.types";
 import { QuoteContactStep } from "./reuse_components/QuoteContactStep";
-import slideDoorImg from "../../../assets/slidingdoor.png";
-import swingDoorImg from "../../../assets/swingdoor.png";
-import walkInWardrobeImg from "../../../assets/walkinwardrobe.png";
+import slideDoorImg from "../../../assets/features/calculator/layouts/wardrobe/door-types/slidingdoor.avif";
+import swingDoorImg from "../../../assets/features/calculator/layouts/wardrobe/door-types/swingdoor.avif";
+import walkInWardrobeImg from "../../../assets/features/calculator/layouts/wardrobe/door-types/walkinwardrobe.avif";
 
-import laminateImg from "../../../assets/laminate.png";
-import acrylicImg from "../../../assets/acrylic.png";
-import glassImg from "../../../assets/glass.png";
-import puFinishImg from "../../../assets/pufinish.png";
-import veneerImg from "../../../assets/veneer.png";
+import laminateImg from "../../../assets/features/calculator/layouts/wardrobe/finishes/laminate.avif";
+import acrylicImg from "../../../assets/features/calculator/layouts/wardrobe/finishes/acrylic.avif";
+import glassImg from "../../../assets/features/calculator/layouts/wardrobe/finishes/glass.avif";
+import puFinishImg from "../../../assets/features/calculator/layouts/wardrobe/finishes/pufinish.avif";
+import veneerImg from "../../../assets/features/calculator/layouts/wardrobe/finishes/veneer.avif";
 
-import PlywoodImg from "../../../assets/plywood.png";
-import HDHMRImg from "../../../assets/hdhmr.png";
-import MDFImg from "../../../assets/mdf.png";
-import ParticleBoardImg from "../../../assets/particleboard.png";
+import PlywoodImg from "../../../assets/features/calculator/layouts/wardrobe/materials/plywood.avif";
+import HDHMRImg from "../../../assets/features/calculator/layouts/wardrobe/materials/hdhmr.avif";
+import MDFImg from "../../../assets/features/calculator/layouts/wardrobe/materials/mdf.avif";
+import ParticleBoardImg from "../../../assets/features/calculator/layouts/wardrobe/materials/particleboard.avif";
 
-import drawersImg from "../../../assets/drawers.png";
-import shoeRackImg from "../../../assets/shoerack.png";
-import jewelleryOrganizerImg from "../../../assets/jewelleryorganizer.png";
-import mirrorImg from "../../../assets/mirror.png";
-import ledLightingImg from "../../../assets/ledlighting.png";
-import softCloseHingesImg from "../../../assets/softclosehinges.png";
-import tieHolderImg from "../../../assets/tieholder.png";
-import trouserPullOutImg from "../../../assets/trouserpullout.png";
+import drawersImg from "../../../assets/features/calculator/layouts/wardrobe/accessories/drawers.avif";
+import shoeRackImg from "../../../assets/features/calculator/layouts/wardrobe/accessories/shoerack.avif";
+import jewelleryOrganizerImg from "../../../assets/features/calculator/layouts/wardrobe/accessories/jewelleryorganizer.avif";
+import mirrorImg from "../../../assets/features/calculator/layouts/wardrobe/accessories/mirror.avif";
+import ledLightingImg from "../../../assets/features/calculator/layouts/wardrobe/accessories/ledlighting.avif";
+import softCloseHingesImg from "../../../assets/features/calculator/layouts/wardrobe/accessories/softclosehinges.avif";
+import tieHolderImg from "../../../assets/features/calculator/layouts/wardrobe/accessories/tieholder.avif";
+import trouserPullOutImg from "../../../assets/features/calculator/layouts/wardrobe/accessories/trouserpullout.avif";
 
 // Configurable Options
 const LENGTHS = [
@@ -328,6 +328,7 @@ export const WardrobeCalculator: React.FC = () => {
     const accessoriesText =
       selectedAccessories.length > 0 ? selectedAccessories.join(", ") : "None";
     const payload: QuoteRequest = {
+      calculatorType: "wardrobe",
       bhkType: `Wardrobe (${selectedType})`,
       areaSize: `${displayLength} x ${displayHeight} (Material: ${selectedMaterial}, Finish: ${selectedFinish}, Accessories: ${accessoriesText})`,
       rooms: { living: 0, kitchen: 0, bedroom: 1, bathroom: 0, dining: 0 },

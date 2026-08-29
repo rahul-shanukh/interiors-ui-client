@@ -281,8 +281,12 @@ export const ProjectJourneySection = () => {
                   </div>
 
                   <div className="md:mt-6 flex-1 md:flex-none">
-                    <h3 className="text-white font-semibold text-base md:text-lg">{step.title}</h3>
-                    <p className="text-white/60 text-xs md:text-sm mt-1 max-w-[200px]">{step.desc}</p>
+                    <h3 className="text-white font-semibold text-base md:text-lg">
+                      {step.title}
+                    </h3>
+                    <p className="text-white/60 text-xs md:text-sm mt-1 max-w-[200px]">
+                      {step.desc}
+                    </p>
                   </div>
                 </div>
               );

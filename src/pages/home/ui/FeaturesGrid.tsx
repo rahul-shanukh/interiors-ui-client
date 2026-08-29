@@ -1,94 +1,127 @@
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 
-// Define the shape of our synced data
-interface Review {
+// 1. TYPINGS
+export interface Review {
   id: string;
   clientName: string;
   projectInfo: string;
   text: string;
   rating: number;
   source: "google" | "video_manual";
-  videoThumb?: string; // For the 3D flip video cards
+  videoThumb?: string;
 }
 
+// 2. STATIC FALLBACK / INITIAL DATA
+// Guarantees zero layout shift and instant SEO crawlability on cold renders.
+const INITIAL_REVIEWS: Review[] = [
+  {
+    id: "1",
+    clientName: "Rahul Sharma",
+    projectInfo: "Premium Villa • Warangal",
+    text: "Absolute transparency from day one. The 3D models perfectly matched the final output. Highly professional team.",
+    rating: 5,
+    source: "google",
+  },
+  {
+    id: "2",
+    clientName: "Anjali Desai",
+    projectInfo: "Video Testimonial • Hyderabad",
+    text: "Hover to see our kitchen transformation and hear about our experience with the team!",
+    rating: 5,
+    source: "video_manual",
+    videoThumb:
+      "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=400",
+  },
+  {
+    id: "3",
+    clientName: "Dr. K. Reddy",
+    projectInfo: "Clinic Interior • Warangal",
+    text: "Delivered perfectly on time. The glass partitions and modern lighting completely elevated our workspace.",
+    rating: 5,
+    source: "google",
+  },
+  {
+    id: "4",
+    clientName: "Vikram Singh",
+    projectInfo: "Modular Kitchen • Google Review",
+    text: "The cost calculator was incredibly accurate. No hidden charges, just pristine quality and reliable execution.",
+    rating: 5,
+    source: "google",
+  },
+];
+
+// Async fetcher function (hit your backend endpoint in production)
+const fetchSyncedReviews = async (): Promise<Review[]> => {
+  // In production:
+  // const res = await fetch("/api/reviews/sync");
+  // if (!res.ok) throw new Error("Network error");
+  // return res.json();
+
+  return INITIAL_REVIEWS;
+};
+
 export const CustomerReviews = () => {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // 3. TANSTACK QUERY SETUP
+  const { data: reviews = INITIAL_REVIEWS } = useQuery<Review[]>({
+    queryKey: ["googleReviewsSync"],
+    queryFn: fetchSyncedReviews,
+    initialData: INITIAL_REVIEWS, // Hydrates instantly for SEO & SSR
+    staleTime: 1000 * 60 * 15, // Cache for 15 minutes before background refetch
+  });
 
-  // 1. THE GOOGLE REVIEWS AUTO-SYNC API LOGIC
-  useEffect(() => {
-    const fetchDynamicReviews = async () => {
-      try {
-        // In production, this hits your backend which securely talks to the Google Places API
-        // const response = await fetch('/api/reviews/sync');
-        // const data = await response.json();
+  // Duplicate the reviews array for the infinite seamless marquee loop
+  const marqueeReviews = useMemo(() => [...reviews, ...reviews], [reviews]);
 
-        // SIMULATED SYNCED DATA
-        const syncedData: Review[] = [
-          {
-            id: "1",
-            clientName: "Rahul Sharma",
-            projectInfo: "Premium Villa • Warangal",
-            text: "Absolute transparency from day one. The 3D models perfectly matched the final output. Highly professional team.",
-            rating: 5,
-            source: "google",
-          },
-          {
-            id: "2",
-            clientName: "Anjali Desai",
-            projectInfo: "Video Testimonial • Hyderabad",
-            text: "Hover to see our kitchen transformation and hear about our experience with the JC team!",
-            rating: 5,
-            source: "video_manual",
-            videoThumb:
-              "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=400",
-          },
-          {
-            id: "3",
-            clientName: "Dr. K. Reddy",
-            projectInfo: "Clinic Interior • Warangal",
-            text: "Delivered perfectly on time. The glass partitions and modern lighting completely elevated our workspace.",
-            rating: 5,
-            source: "google",
-          },
-          {
-            id: "4",
-            clientName: "Vikram Singh",
-            projectInfo: "Modular Kitchen • Google Review",
-            text: "The cost calculator was incredibly accurate. No hidden charges, just pristine quality and reliable execution.",
-            rating: 5,
-            source: "google",
-          },
-        ];
-
-        setReviews(syncedData);
-      } catch (error) {
-        console.error("API Sync Failed:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchDynamicReviews();
-  }, []);
-
-  if (isLoading) return null;
-
-  // Double the array for the infinite physics loop
-  const marqueeReviews = [...reviews, ...reviews];
+  // 4. GOOGLE JSON-LD SCHEMA FOR RICH SEARCH SNIPPETS
+  const schemaData = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      name: "Interior Design Warangal",
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: "4.9",
+        reviewCount: "150",
+        bestRating: "5",
+        worstRating: "1",
+      },
+      review: reviews.map((r) => ({
+        "@type": "Review",
+        author: { "@type": "Person", name: r.clientName },
+        reviewRating: {
+          "@type": "Rating",
+          ratingValue: r.rating.toString(),
+          bestRating: "5",
+        },
+        reviewBody: r.text,
+      })),
+    }),
+    [reviews],
+  );
 
   return (
-    // Deep Trust Slate Background
-    <section className="relative py-24 bg-[#0B1121] overflow-hidden font-sans">
-      {/* Subtle Glass/Glow Orbs in Background */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+    <section className="relative py-28 bg-[#0B1121] overflow-hidden font-sans">
+      {/* 5. TOP BACKGROUND BLEND BRIDGE
+          Melts the warm off-white background (#fcfbf9) of PriceCalculatorTeaser 
+          smoothly into the dark luxury slate background (#0B1121) */}
+      <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-[#fcfbf9] via-[#0B1121]/80 to-[#0B1121] pointer-events-none z-10" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mb-16 flex flex-col md:flex-row items-end justify-between gap-8">
-        {/* Header Text */}
+      {/* SEO Schema.org Script */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
+
+      {/* Ambient Background Glows */}
+      <div className="absolute top-12 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-[120px] pointer-events-none" />
+
+      {/* Header Area */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 mb-16 flex flex-col md:flex-row items-start md:items-end justify-between gap-8">
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <span className="flex h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)] animate-pulse"></span>
+            <span className="flex h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)] animate-pulse" />
             <span className="text-blue-400 text-xs font-bold tracking-widest uppercase">
               Live Google Sync Active
             </span>
@@ -101,14 +134,18 @@ export const CustomerReviews = () => {
           </h2>
         </div>
 
-        {/* Aggregate Trust Badge */}
+        {/* Aggregate Score Card */}
         <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-xl">
           <div className="text-4xl font-black text-white">4.9</div>
           <div className="flex flex-col">
-            <div className="flex gap-1 mb-1">
+            <div
+              className="flex gap-1 mb-1"
+              aria-label="Rating 5 out of 5 stars"
+            >
               {[...Array(5)].map((_, i) => (
                 <svg
                   key={i}
+                  aria-hidden="true"
                   className="w-4 h-4 text-yellow-400"
                   fill="currentColor"
                   viewBox="0 0 20 20"
@@ -124,30 +161,27 @@ export const CustomerReviews = () => {
         </div>
       </div>
 
-      {/* INFINITE LOOP SECTION */}
-      <div className="relative w-full overflow-hidden flex group py-8">
-        {/* Edges Gradient for smooth loop masking */}
-        <div className="absolute top-0 left-0 w-24 md:w-48 h-full bg-gradient-to-r from-[#0B1121] to-transparent z-20 pointer-events-none"></div>
-        <div className="absolute top-0 right-0 w-24 md:w-48 h-full bg-gradient-to-l from-[#0B1121] to-transparent z-20 pointer-events-none"></div>
+      {/* MARQUEE CONTAINER */}
+      <div className="relative w-full overflow-hidden flex group py-8 z-20">
+        {/* Soft Side Fades for Smooth Infinite Edges */}
+        <div className="absolute top-0 left-0 w-24 md:w-48 h-full bg-gradient-to-r from-[#0B1121] to-transparent z-30 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-24 md:w-48 h-full bg-gradient-to-l from-[#0B1121] to-transparent z-30 pointer-events-none" />
 
-        {/* The Marquee Track */}
-        <div className="flex gap-6 w-max animate-marquee group-hover:[animation-play-state:paused] px-4 items-center">
+        {/* Scrolling Track */}
+        <div className="flex gap-6 w-max animate-marquee group-hover:[animation-play-state:paused] px-4 items-center will-change-transform">
           {marqueeReviews.map((review, idx) =>
-            // 3D FLIP VIDEO CARD
             review.source === "video_manual" ? (
+              /* 3D FLIP VIDEO CARD */
               <div
                 key={`${review.id}-${idx}`}
                 className="group/flip perspective-1000 w-[320px] md:w-[380px] h-[260px] shrink-0 cursor-pointer"
               >
                 <div className="relative w-full h-full transition-transform duration-1000 transform-style-3d group-hover/flip:rotate-y-180">
-                  {/* Front Face: Glass Stack Effect */}
+                  {/* Front Side */}
                   <div className="absolute w-full h-full backface-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl flex flex-col justify-between overflow-hidden">
-                    {/* Visual Stacked Lines */}
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-teal-400 opacity-50"></div>
-                    <div className="absolute -top-2 left-4 right-4 h-2 bg-white/5 rounded-t-lg border-t border-x border-white/10"></div>
-
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-teal-400 opacity-50" />
                     <div className="flex justify-between items-start mb-4">
-                      <div className="flex gap-1">
+                      <div className="flex gap-1" aria-hidden="true">
                         {[...Array(5)].map((_, i) => (
                           <svg
                             key={i}
@@ -159,15 +193,16 @@ export const CustomerReviews = () => {
                           </svg>
                         ))}
                       </div>
-                      <span className="bg-blue-500/20 text-blue-300 text-[0.65rem] font-bold px-2 py-1 rounded-full border border-blue-500/30 flex items-center gap-1">
+                      <span className="bg-blue-500/20 text-blue-300 text-[0.65rem] font-bold px-2.5 py-1 rounded-full border border-blue-500/30 flex items-center gap-1">
                         <svg
                           className="w-3 h-3"
                           fill="currentColor"
                           viewBox="0 0 24 24"
+                          aria-hidden="true"
                         >
                           <path d="M8 5v14l11-7z" />
                         </svg>{" "}
-                        Video
+                        Video Story
                       </span>
                     </div>
 
@@ -176,29 +211,32 @@ export const CustomerReviews = () => {
                     </p>
 
                     <div>
-                      <h4 className="text-white font-bold text-sm">
+                      <h3 className="text-white font-bold text-sm">
                         {review.clientName}
-                      </h4>
+                      </h3>
                       <p className="text-slate-400 text-xs">
                         {review.projectInfo}
                       </p>
                     </div>
                   </div>
 
-                  {/* Back Face: Video Thumbnail & Play Button */}
+                  {/* Back Side: Video Thumbnail */}
                   <div className="absolute w-full h-full backface-hidden rotate-y-180 rounded-2xl overflow-hidden border border-blue-500/50 shadow-[0_0_30px_rgba(59,130,246,0.2)]">
                     <img
                       src={review.videoThumb}
-                      alt="Video Thumbnail"
+                      alt={`${review.clientName} Video Testimonial`}
+                      loading="lazy"
+                      decoding="async"
                       className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay"
                     />
-                    <div className="absolute inset-0 bg-slate-900/40"></div>
+                    <div className="absolute inset-0 bg-slate-900/40" />
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                       <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/40 shadow-xl hover:scale-110 hover:bg-white/30 transition-transform duration-300">
                         <svg
                           className="w-6 h-6 text-white ml-1"
                           fill="currentColor"
                           viewBox="0 0 24 24"
+                          aria-hidden="true"
                         >
                           <path d="M8 5v14l11-7z" />
                         </svg>
@@ -211,15 +249,16 @@ export const CustomerReviews = () => {
                 </div>
               </div>
             ) : (
-              // STANDARD GLASS TESTIMONIAL CARD
+              /* STANDARD GOOGLE REVIEW CARD */
               <div
                 key={`${review.id}-${idx}`}
                 className="relative w-[320px] md:w-[380px] shrink-0 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8 shadow-xl transition-all duration-500 hover:-translate-y-2 hover:bg-white/10 hover:border-white/20 hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)] cursor-pointer"
               >
-                {/* Google SVG Logo */}
+                {/* Google Logo */}
                 <svg
                   className="absolute top-6 right-6 w-6 h-6 opacity-80"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     fill="#4285F4"
@@ -239,7 +278,7 @@ export const CustomerReviews = () => {
                   />
                 </svg>
 
-                <div className="flex gap-1 mb-6">
+                <div className="flex gap-1 mb-6" aria-hidden="true">
                   {[...Array(review.rating)].map((_, i) => (
                     <svg
                       key={i}
@@ -257,9 +296,9 @@ export const CustomerReviews = () => {
                 </p>
 
                 <div>
-                  <h4 className="text-white font-bold text-sm tracking-wide">
+                  <h3 className="text-white font-bold text-sm tracking-wide">
                     {review.clientName}
-                  </h4>
+                  </h3>
                   <p className="text-slate-400 text-xs mt-1 font-medium">
                     {review.projectInfo}
                   </p>
@@ -270,21 +309,18 @@ export const CustomerReviews = () => {
         </div>
       </div>
 
-      {/* REQUIRED CSS FOR 3D FLIPS AND MARQUEE PHYSICS */}
+      {/* GPU ACCELERATED STYLES */}
       <style>{`
-        /* 3D Flip Utilities */
         .perspective-1000 { perspective: 1000px; }
         .transform-style-3d { transform-style: preserve-3d; }
         .backface-hidden { backface-visibility: hidden; }
         .rotate-y-180 { transform: rotateY(180deg); }
-        
-        /* Smooth Infinite Loop Physics */
+
         @keyframes scrollMarquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(calc(-50% - 12px)); }
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(calc(-50% - 12px), 0, 0); }
         }
         .animate-marquee {
-          /* 45s makes it slow and readable. Linear keeps the speed constant */
           animation: scrollMarquee 45s linear infinite;
         }
       `}</style>
