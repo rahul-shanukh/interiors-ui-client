@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { ConsultOnlineModal } from "../../consult-online/ui/ConsultOnlineModal";
 import {
   CheckCircle2,
   ChevronRight,
@@ -32,7 +34,7 @@ const BHK_ROOM_CONFIGS: Record<
     areaOptions: string[];
   }
 > = {
-  "1 BHK": {
+  "1BHK": {
     defaults: {
       living: 1,
       kitchen: 1,
@@ -48,7 +50,7 @@ const BHK_ROOM_CONFIGS: Record<
     areaOptions: ["Below 800 sq. ft.", "Above 800 sq. ft."],
   },
 
-  "2 BHK": {
+  "2BHK": {
     defaults: {
       living: 1,
       kitchen: 1,
@@ -64,7 +66,7 @@ const BHK_ROOM_CONFIGS: Record<
     areaOptions: ["Below 800 sq. ft.", "Above 800 sq. ft."],
   },
 
-  "3 BHK": {
+  "3BHK": {
     defaults: {
       living: 1,
       kitchen: 1,
@@ -105,7 +107,7 @@ export const FullHomeCalculator = () => {
 
   const [buildData, setBuildData] = useState<CalculatorBuildData>({
     bhkType: null,
-    areaSize: null,
+    builtupArea: null,
     rooms: { living: 1, kitchen: 1, bedroom: 2, bathroom: 2, dining: 1 },
     packageLevel: null,
     customerDetails: null,
@@ -131,17 +133,24 @@ export const FullHomeCalculator = () => {
 
   const submitToBackend = async (customerDetails: CustomerDetails) => {
     const finalPayload: QuoteRequest = {
-      calculatorType: "fullHome",
-      bhkType: buildData.bhkType || "",
-      areaSize: buildData.areaSize || "",
-      rooms: buildData.rooms,
-      package: buildData.packageLevel || "",
+      calculatorType: "full_home",
+      configuration: {
+        bhkType: buildData.bhkType || "",
+        builtupArea: buildData.builtupArea || "",
+        rooms: buildData.rooms,
+        package: (buildData.packageLevel || "").toUpperCase(),
+      },
       name: customerDetails.name,
       phone: customerDetails.phone,
       email: customerDetails.email,
-      city: customerDetails.city,
-      latitude: customerDetails.latitude,
-      longitude: customerDetails.longitude,
+      location: {
+        city: customerDetails.city,
+        state: customerDetails.state,
+        country: customerDetails.country,
+        latitude: customerDetails.latitude,
+        longitude: customerDetails.longitude,
+      },
+
       recaptchaToken: customerDetails.recaptchaToken,
     };
 
@@ -218,7 +227,7 @@ export const FullHomeCalculator = () => {
           {step === 1 && (
             <Step1Bhk
               current={buildData.bhkType}
-              areaSize={buildData.areaSize}
+              builtupArea={buildData.builtupArea}
               areaOptions={
                 buildData.bhkType
                   ? BHK_ROOM_CONFIGS[buildData.bhkType]?.areaOptions
@@ -229,12 +238,12 @@ export const FullHomeCalculator = () => {
                 setBuildData((prev) => ({
                   ...prev,
                   bhkType: val,
-                  areaSize: null,
+                  builtupArea: null,
                   rooms: config ? config.defaults : prev.rooms,
                 }));
               }}
               onSelectArea={(val) => {
-                updateBuild("areaSize", val);
+                updateBuild("builtupArea", val);
               }}
               onContinue={handleNext}
             />
@@ -288,7 +297,7 @@ export const FullHomeCalculator = () => {
                   onClick={handleNext}
                   disabled={
                     step === 1
-                      ? !buildData.bhkType || !buildData.areaSize
+                      ? !buildData.bhkType || !buildData.builtupArea
                       : false
                   }
                   className="group flex items-center gap-2 bg-[#13503B] text-white px-8 py-3.5 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-[#0d3528] shadow-xl shadow-[#13503B]/20 disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
@@ -312,24 +321,24 @@ export const FullHomeCalculator = () => {
 
 const Step1Bhk = ({
   current,
-  areaSize,
+  builtupArea,
   areaOptions,
   onSelect,
   onSelectArea,
   onContinue,
 }: {
   current: string | null;
-  areaSize: string | null;
+  builtupArea: string | null;
   areaOptions: string[];
   onSelect: (val: string) => void;
   onSelectArea: (val: string) => void;
   onContinue: () => void;
 }) => {
   const [showModal, setShowModal] = useState(false);
-  const [tempAreaSize, setTempAreaSize] = useState<string | null>(areaSize);
+  const [tempAreaSize, setTempAreaSize] = useState<string | null>(builtupArea);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
 
-  const options = ["1 BHK", "2 BHK", "3 BHK", "4+ BHK / Villa"];
+  const options = ["1BHK", "2BHK", "3BHK", "4+ BHK / Villa"];
   return (
     <div className="text-center animate-fadeIn">
       <div className="inline-flex items-center justify-center w-16 h-16 bg-[#13503B]/5 rounded-full mb-6 text-[#13503B]">
@@ -357,7 +366,7 @@ const Step1Bhk = ({
             key={opt}
             onClick={() => {
               onSelect(opt);
-              setTempAreaSize(current === opt ? areaSize : null);
+              setTempAreaSize(current === opt ? builtupArea : null);
               setShowModal(true);
             }}
             className={`py-6 px-4 rounded-xl border-2 font-bold transition-all duration-300 flex flex-col items-center justify-center min-h-[96px] ${
@@ -367,9 +376,9 @@ const Step1Bhk = ({
             }`}
           >
             <span className="block text-base">{opt}</span>
-            {current === opt && areaSize && (
+            {current === opt && builtupArea && (
               <span className="block text-xs text-[#C5A059] mt-2 font-medium bg-[#C5A059]/10 px-2.5 py-0.5 rounded-full">
-                {areaSize}
+                {builtupArea}
               </span>
             )}
           </button>
@@ -745,6 +754,8 @@ const Step5Result = ({ price }: { price: number }) => {
     maximumFractionDigits: 0,
   }).format(price);
 
+  const queryClient = useQueryClient();
+
   return (
     <div className="text-center animate-fadeIn py-6">
       <div className="inline-flex items-center justify-center w-20 h-20 bg-green-50 rounded-full mb-8 text-green-600 shadow-inner">
@@ -765,10 +776,17 @@ const Step5Result = ({ price }: { price: number }) => {
           and provide a free 3D design consultation.
         </p>
         <div className="flex flex-col sm:flex-row gap-3">
-          <button className="flex-1 bg-[#13503B] text-white py-4 rounded-xl font-bold text-xs tracking-widest uppercase shadow-lg shadow-[#13503B]/10">
+          <button
+            onClick={() => queryClient.setQueryData(["consultModalOpen"], true)}
+            className="flex-1 bg-[#13503B] text-white py-4 rounded-xl font-bold text-xs tracking-widest uppercase shadow-lg shadow-[#13503B]/10"
+          >
             Book Consultation
           </button>
-          <button className="flex-1 flex items-center justify-center gap-2 bg-white text-[#13503B] border-2 border-gray-100 py-4 rounded-xl font-bold text-xs tracking-widest uppercase transition-colors hover:bg-gray-50">
+          <ConsultOnlineModal />
+          <button
+            onClick={() => console.log("Download Pricing Guide clicked")}
+            className="flex-1 flex items-center justify-center gap-2 bg-white text-[#13503B] border-2 border-gray-100 py-4 rounded-xl font-bold text-xs tracking-widest uppercase transition-colors hover:bg-gray-50"
+          >
             <Download size={14} />
             Pricing Guide
           </button>

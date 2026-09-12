@@ -125,7 +125,7 @@ const MeasurementDropdown: React.FC<MeasurementDropdownProps> = ({
       {isOpen && (
         <div
           role="listbox"
-          className="absolute top-[110%] left-0 right-0 bg-white border border-gray-100 rounded-xl shadow-xl z-[999] max-h-48 overflow-y-auto divide-y divide-gray-50 animate-fadeIn"
+          className="absolute top-[110%] left-0 right-0 bg-white border border-gray-100 rounded-xl shadow-xl z-999 max-h-48 overflow-y-auto divide-y divide-gray-50 animate-fadeIn"
         >
           {options.map((num) => (
             <button

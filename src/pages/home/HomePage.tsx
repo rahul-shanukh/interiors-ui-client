@@ -5,16 +5,30 @@ import { CustomerReviews } from "./ui/FeaturesGrid";
 import { ProjectJourneySection } from "./ui/DeepDiveSection";
 import { FaqSection } from "./ui/FaqSection";
 import { HomeFooter } from "./ui/HomeFooter";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { useInView } from "framer-motion";
 import FloatWhatsapp from "../../features/communication/FloatWhatsapp";
 import SocialSidebar from "../../features/communication/SocialSidebar";
 
 export const HomePage = () => {
+  const location = useLocation();
   const faqRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
   const isFaqInView = useInView(faqRef);
   const isFooterInView = useInView(footerRef);
+
+  useEffect(() => {
+    if (location.hash !== "#price-calculators") return;
+
+    const frameId = requestAnimationFrame(() => {
+      document
+        .getElementById("price-calculators")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [location.hash]);
 
   const showSidebar = !isFaqInView && !isFooterInView;
 

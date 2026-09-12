@@ -33,13 +33,15 @@ export const mapKitchenUiToQuoteRequest = ({
   return {
     calculatorType: "kitchen",
     bhkType: `Kitchen (${layoutNameMap[selectedLayoutId] || "Custom"})`,
-    areaSize: areaSizeString,
+    builtupArea: areaSizeString,
     rooms: { living: 0, kitchen: 1, bedroom: 0, bathroom: 0, dining: 0 },
     package: packageNameMap[selectedPackageId] || "Premium",
     name: customerDetails.name,
     phone: customerDetails.phone, // Phone already contains country code from Step3Quote submission
     email: customerDetails.email || "", // Resolves string | undefined error
     city: customerDetails.city,
+    state: customerDetails.state,
+    country: customerDetails.country,
     latitude: customerDetails.latitude,
     longitude: customerDetails.longitude,
     recaptchaToken: customerDetails.recaptchaToken,

@@ -52,6 +52,7 @@ interface NominatimReverseResult {
     district?: string;
     county?: string;
     state?: string;
+    country?: string;
   };
 }
 
@@ -69,6 +70,8 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
     phone: "",
     email: "",
     city: "",
+    state: "",
+    country: "",
     latitude: undefined,
     longitude: undefined,
   });
@@ -147,18 +150,18 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
     onSuccess: (data, variables) => {
       if (data && data.address) {
         const address = data.address;
-        const district =
+        const city =
           address.city ||
           address.town ||
           address.district ||
           address.county ||
           "";
-        const state = address.state || "";
-        const name =
-          district && state
-            ? `${district}, ${state}`
-            : district || state || "Selected Location";
-        selectCityRef.current(name, [variables.lat, variables.lng]);
+        selectCityRef.current(
+          city || "Selected Location",
+          [variables.lat, variables.lng],
+          address.state || "",
+          address.country || "",
+        );
       }
     },
   });
@@ -172,10 +175,17 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
   const markerMapRef = useRef<Record<string, L.Marker>>({});
   const customMarkerRef = useRef<L.Marker | null>(null);
 
-  function handleSelectCity(name: string, coords: [number, number]) {
+  function handleSelectCity(
+    name: string,
+    coords: [number, number],
+    state = "",
+    country = "",
+  ) {
     setForm((prev) => ({
       ...prev,
       city: name,
+      state,
+      country,
       latitude: coords[0],
       longitude: coords[1],
     }));
@@ -222,8 +232,18 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
     }
   }
 
+  function handleSelectCityAndResolve(name: string, coords: [number, number]) {
+    handleSelectCity(name, coords);
+    reverseGeocodeRef.current({ lat: coords[0], lng: coords[1] });
+  }
+
   const selectCityRef = useRef<
-    (name: string, coords: [number, number]) => void
+    (
+      name: string,
+      coords: [number, number],
+      state?: string,
+      country?: string,
+    ) => void
   >(() => {});
   useEffect(() => {
     selectCityRef.current = handleSelectCity;
@@ -269,7 +289,9 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
           `<div class="text-[#13503B] font-bold text-center">${city.name}</div>`,
           { closeButton: false, offset: [0, -5] },
         );
-      marker.on("click", () => selectCityRef.current(city.name, city.coords));
+      marker.on("click", () =>
+        handleSelectCityAndResolve(city.name, city.coords),
+      );
       markerMap[city.name] = marker;
     });
     markerMapRef.current = markerMap;
@@ -315,7 +337,7 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
   };
 
   const updateField = (field: keyof CustomerDetails, value: string) => {
-    setForm({ ...form, [field]: value });
+    setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => {
         const copy = { ...prev };
@@ -555,7 +577,10 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
                         type="button"
                         onMouseDown={(e) => {
                           e.preventDefault();
-                          handleSelectCity(c.shortName, c.coords);
+                          handleSelectCityAndResolve(
+                            c.shortName.split(",")[0].trim(),
+                            c.coords,
+                          );
                           setShowSuggestions(false);
                         }}
                         className="bg-[#13503B] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#0d3528] transition-colors cursor-pointer shrink-0"
@@ -580,7 +605,7 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
             <button
               key={c.name}
               type="button"
-              onClick={() => handleSelectCity(c.name, c.coords)}
+              onClick={() => handleSelectCityAndResolve(c.name, c.coords)}
               className={`px-3 py-1.5 transition-all duration-300 cursor-pointer ${
                 minimal
                   ? `text-xs border-b border-transparent ${form.city === c.name ? "border-[#13503B] text-[#13503B] font-bold" : "text-gray-400 hover:text-gray-700"}`
@@ -606,9 +631,15 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
               className="leaflet-map-node w-full h-full z-10"
             />
           </div>
-          {(errors.city || errors.latitude || errors.longitude) && (
+          {(errors.city ||
+            errors.state ||
+            errors.country ||
+            errors.latitude ||
+            errors.longitude) && (
             <p className="text-left text-xs text-red-500 mb-4 font-bold pl-2">
               {errors.city ||
+                errors.state ||
+                errors.country ||
                 errors.latitude ||
                 "Please pin your precise site location directly on the map."}
             </p>

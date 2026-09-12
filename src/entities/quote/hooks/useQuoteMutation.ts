@@ -34,21 +34,23 @@ export const useQuote = () => {
     retry: (failureCount, error) => {
       const statusCode = getStatusCode(error);
 
-      if (statusCode && [400, 401, 403, 422].includes(statusCode)) {
+      // 1. NEVER retry 4xx errors (including 429 Rate Limit and 409 Conflict)
+      if (statusCode && statusCode >= 400 && statusCode < 500) {
         return false;
       }
 
-      if (statusCode && statusCode >= 500) {
-        return failureCount < 3;
+      // 2. ONLY retry safe infrastructure errors: 502 (Bad Gateway) or 503 (Service Unavailable)
+      // These mean the request was blocked by Cloudflare/Load Balancer and never reached your DB.
+      if (statusCode === 502 || statusCode === 503) {
+        return failureCount < 2; // Max 2 retries for infrastructure hiccups
       }
 
-      if (statusCode === 429) {
-        return failureCount < 3;
-      }
-
-      return failureCount < 3;
+      // 3. DO NOT retry network timeouts (undefined status) or 500s.
+      // The server might have successfully created the quote before the connection dropped.
+      return false;
     },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    // Shorter max backoff so the user isn't staring at a spinner for 30+ seconds
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
     onSuccess: (response) => {
       console.log("Backend calculated cost:", response.estimatedPrice);
     },

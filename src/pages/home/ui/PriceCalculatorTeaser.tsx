@@ -83,7 +83,10 @@ export const PriceCalculatorTeaser = () => {
   }, []);
 
   return (
-    <section className="relative w-full bg-[#fcfbf9] overflow-hidden flex flex-col items-center">
+    <section
+      id="price-calculators"
+      className="relative w-full bg-[#fcfbf9] overflow-hidden flex flex-col items-center"
+    >
       {/* 1. THE CLIFFHANGER BANNER */}
       <div className="w-full bg-[#2A3439] py-4 shadow-[0_10px_30px_rgba(0,0,0,0.2)] z-10 relative">
         <div className="max-w-7xl mx-auto px-4 text-center group cursor-pointer">

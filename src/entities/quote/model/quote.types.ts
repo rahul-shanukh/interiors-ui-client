@@ -12,6 +12,8 @@ export interface CustomerDetails {
   phone: string;
   email: string;
   city: string;
+  state?: string;
+  country?: string;
   latitude?: number;
   longitude?: number;
   recaptchaToken?: string;
@@ -19,7 +21,7 @@ export interface CustomerDetails {
 
 export interface CalculatorBuildData {
   bhkType: string | null;
-  areaSize: string | null;
+  builtupArea: string | null;
   rooms: RoomCounts;
   packageLevel: string | null;
   customerDetails: CustomerDetails | null;
@@ -27,17 +29,23 @@ export interface CalculatorBuildData {
 
 // This matches what the API expects
 export interface QuoteRequest {
-  calculatorType: "kitchen" | "fullHome" | "wardrobe";
-  bhkType: string;
-  areaSize: string;
-  rooms: RoomCounts;
-  package: string; // Map packageLevel to package
+  calculatorType: "kitchen" | "full_home" | "wardrobe";
+  configuration: {
+    bhkType: string;
+    builtupArea: string;
+    rooms: RoomCounts;
+    package: string;
+  };
   name: string;
   phone: string;
   email: string;
-  city?: string;
-  latitude?: number;
-  longitude?: number;
+  location?: {
+    city?: string;
+    state?: string;
+    country?: string;
+    latitude?: number;
+    longitude?: number;
+  };
   recaptchaToken?: string;
 }
 

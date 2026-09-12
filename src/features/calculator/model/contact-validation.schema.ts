@@ -17,6 +17,12 @@ export const contactSchema = z.object({
   city: z
     .string()
     .min(1, { message: "Please search or select a city from the list" }),
+  state: z
+    .string()
+    .min(1, { message: "Please select a location with a valid state" }),
+  country: z
+    .string()
+    .min(1, { message: "Please select a location with a valid country" }),
 
   // ✅ Swapped required_error to message for Zod v4 compatibility
   latitude: z.number({
