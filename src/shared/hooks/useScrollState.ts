@@ -1,3 +1,5 @@
+//src/shared/hooks/useScrollState.ts
+
 import { useSyncExternalStore } from "react";
 
 /**
@@ -14,7 +16,7 @@ export const useScrollState = (threshold: number = 20): boolean => {
       return () => window.removeEventListener("scroll", callback);
     },
     () => window.scrollY > threshold,
-    // Optional: Server snapshot for SSR (Next.js/Remix) compatibility if ever needed
+    // Optional: Server snapshot for SSR  compatibility if ever needed
     () => false 
   );
 };

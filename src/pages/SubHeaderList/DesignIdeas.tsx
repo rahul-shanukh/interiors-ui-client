@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { useScrollState } from "../../shared/hooks/useScrollState";
 import { FaqSection } from "../home/ui/FaqSection";
 import { HomeFooter } from "../home/ui/HomeFooter";
 
@@ -15,18 +14,36 @@ import category6 from "../../assets/Design/rug.webp";
 import card1 from "../../assets/Design/card1.avif";
 import card2 from "../../assets/Design/card2.avif";
 import card3 from "../../assets/Design/card3.avif";
+import { useEffect, useState } from "react";
 
 const ThemeHeader = () => {
   const navigate = useNavigate();
-  const isScrolled = useScrollState(20);
+
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY >= 800);
+    };
+
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const primaryLinks = ["Design Ideas", "Projects", "Store Locator", "More"];
 
   return (
     <header
-      className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? "bg-[#fdfbf7] shadow-sm py-4" : "bg-transparent py-8"}`}
+      className={`fixed top-0 w-full z-50 transition-[background-color,box-shadow,padding] duration-1000 ease-in-out ${
+        isScrolled ? "bg-[#fdfbf7] shadow-sm py-4" : "bg-transparent py-8"
+      }`}
     >
-      <div className="max-w-[1920px] mx-auto px-6 md:px-12 flex justify-between items-center">
+      <div className="max-w-480 mx-auto px-6 md:px-12 flex justify-between items-center">
         {/* Logo */}
         <div
           onClick={() => navigate("/")}
@@ -41,13 +58,13 @@ const ThemeHeader = () => {
             className={`flex flex-col border-l pl-4 transition-colors duration-500 ${isScrolled ? "border-[#4a3f35]/30" : "border-white/30"}`}
           >
             <span
-              className="text-2xl font-bold tracking-[0.15em] font-serif leading-none"
+              className="text-2xl font-bold tracking-[0.15em] font-serif leading-none transition-colors duration-700 ease-in-out"
               style={{ fontFamily: "'Cinzel', serif" }}
             >
               JC
             </span>
             <span
-              className="text-[0.65rem] font-semibold tracking-[0.4em] mt-1.5"
+              className="text-[0.65rem] font-semibold tracking-[0.4em] mt-1.5 transition-colors duration-700 ease-in-out"
               style={{ fontFamily: "'Cinzel', serif" }}
             >
               INTERIORS
@@ -135,11 +152,13 @@ export const DesignIdeas = () => {
     >
       <ThemeHeader />
       {/*  BannerImage Section */}
-      <section className="relative w-full max-w-[1920px] mx-auto overflow-hidden flex items-center justify-center">
+      <section className="relative w-full max-w-480 mx-auto overflow-hidden flex items-center justify-center">
         <img
           src={BannerImage}
           alt="Perfect Balance of Comfort"
           className="w-full h-auto object-cover"
+          fetchPriority="high"
+          // decoding="async"
         />
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="absolute inset-0 flex items-center justify-center md:justify-end p-10 md:p-24 lg:p-32">
