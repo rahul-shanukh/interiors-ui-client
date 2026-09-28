@@ -6,6 +6,7 @@ import "./app/styles/index.css";
 import "swiper/css";
 import "swiper/css/pagination";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { initializeRemoteConfig } from "./infrastructure/firebase/remote-config";
 
 // Prevent the browser from automatically trying to restore legacy scroll positions
 if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
@@ -21,3 +22,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </QueryClientProvider>
   </React.StrictMode>,
 );
+
+void initializeRemoteConfig();

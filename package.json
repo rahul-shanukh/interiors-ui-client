@@ -7,7 +7,7 @@
     "dev": "echo 'FRONTEND STARTING...' && vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "openapi:generate": "openapi-typescript http://localhost:3000/api/docs-json -o src/infrastructure/openapi/schema.ts",
+    "openapi:generate": "openapi-typescript http://localhost:3000/api/docs-json -o src/infrastructure/openapi/schema.ts --default-non-nullable false",
     "optimize-images": "tsx scripts/optimize-images.ts",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview"
@@ -19,6 +19,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@tabler/icons-react": "^3.36.1",
     "@tanstack/react-query": "^5.90.20",
+    "firebase": "^12.19.0",
     "framer-motion": "^12.35.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.577.0",

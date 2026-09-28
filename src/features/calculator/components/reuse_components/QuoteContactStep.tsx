@@ -30,7 +30,7 @@ const CITIES = [
 ];
 
 interface QuoteContactStepProps {
-  onSubmit: (data: CustomerDetails) => void;
+  onSubmit: (data: CustomerDetails) => void | Promise<void>;
   loading: boolean;
   headingText?: string;
   descriptionText?: string;
@@ -85,6 +85,7 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
   // Local state to track specific field validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [captchaError, setCaptchaError] = useState("");
+  const [submissionError, setSubmissionError] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
 
   const [countryCode, setCountryCode] = useState("+91");
@@ -303,6 +304,7 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
   }, []);
 
   const handleFormSubmit = async () => {
+    setSubmissionError("");
     const parseResult = contactSchema.safeParse(form);
 
     if (!parseResult.success) {
@@ -323,11 +325,17 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
 
     try {
       const recaptchaToken = await getRecaptchaToken();
-      onSubmit({
-        ...form,
-        phone: `${countryCode}${form.phone}`,
-        recaptchaToken,
-      });
+      try {
+        await onSubmit({
+          ...parseResult.data,
+          phone: `${countryCode}${parseResult.data.phone}`,
+          recaptchaToken,
+        });
+      } catch (error) {
+        setSubmissionError(
+          error instanceof Error ? error.message : "Unable to submit your quote. Please try again.",
+        );
+      }
     } catch (error) {
       console.error("reCAPTCHA token generation failed", error);
       setCaptchaError("We could not verify this submission. Please try again.");
@@ -659,6 +667,9 @@ export const QuoteContactStep: React.FC<QuoteContactStepProps> = ({
         >
           {loading || isVerifying ? "Processing..." : submitButtonText}
         </button>
+        {submissionError && (
+          <p role="alert" className="text-xs text-red-500 mt-2 font-bold">{submissionError}</p>
+        )}
         {submitError && (
           <p className="text-xs text-red-500 mt-2 font-bold">{submitError}</p>
         )}

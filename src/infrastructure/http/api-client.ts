@@ -1,4 +1,4 @@
-//Frontend\interiors-ui-client\src\infrastructure\http\api-client.ts
+// Frontend\interiors-ui-client\src\infrastructure\http\api-client.ts
 
 import { API_BASE_URL } from "../config/env";
 
@@ -73,8 +73,13 @@ async function request<TResponse>(
   body?: unknown,
   options: ApiRequestOptions = {},
 ): Promise<TResponse> {
-  const { query, timeoutMs = DEFAULT_TIMEOUT_MS, headers, signal, ...init } =
-    options;
+  const {
+    query,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
+    headers,
+    signal,
+    ...init
+  } = options;
 
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);

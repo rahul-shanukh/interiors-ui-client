@@ -1,6 +1,5 @@
 import React from "react";
 
-// Define the shape based on your GraphQL Schema
 export interface Product {
   id: string;
   name: string;

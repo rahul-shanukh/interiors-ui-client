@@ -12,10 +12,11 @@ import {
   X,
 } from "lucide-react";
 import type {
-  CalculatorBuildData,
+  CalculatorBuildState,
   RoomCounts,
   CustomerDetails,
   QuoteRequest,
+  FullHomeConfiguration,
 } from "../../../entities/quote/model/quote.types";
 import { useQuote } from "../../../entities/quote/hooks/useQuoteMutation";
 import { QuoteContactStep } from "./reuse_components/QuoteContactStep";
@@ -105,21 +106,42 @@ export const FullHomeCalculator = () => {
   const navigate = useNavigate();
   const { mutateAsync, isPending, isError } = useQuote();
 
-  const [buildData, setBuildData] = useState<CalculatorBuildData>({
-    bhkType: null,
-    builtupArea: null,
-    rooms: { living: 1, kitchen: 1, bedroom: 2, bathroom: 2, dining: 1 },
-    packageLevel: null,
+  const [buildData, setBuildData] = useState<CalculatorBuildState>({
+    calculatorType: "full_home",
+    configuration: {
+      bhkType: undefined,
+      builtupArea: "",
+      rooms: {
+        living: 1,
+        kitchen: 1,
+        bedroom: 1,
+        bathroom: 1,
+        dining: 0,
+        balcony: 0,
+        pooja: 0,
+        laundry: 0,
+      },
+      package: "",
+    },
     customerDetails: null,
   });
 
   const steps = ["BHK TYPE", "ROOMS", "PACKAGE", "GET QUOTE"];
 
-  const updateBuild = <K extends keyof CalculatorBuildData>(
+  const updateConfig = <K extends keyof FullHomeConfiguration>(
     key: K,
-    value: CalculatorBuildData[K],
+    value: FullHomeConfiguration[K],
   ) => {
-    setBuildData((prev) => ({ ...prev, [key]: value }));
+    setBuildData((prev) => {
+      if (prev.calculatorType !== "full_home") return prev;
+      return {
+        ...prev,
+        configuration: {
+          ...prev.configuration,
+          [key]: value,
+        } as FullHomeConfiguration,
+      };
+    });
   };
 
   const handleNext = () => setStep((prev) => Math.min(prev + 1, 5));
@@ -132,13 +154,33 @@ export const FullHomeCalculator = () => {
   };
 
   const submitToBackend = async (customerDetails: CustomerDetails) => {
+    // 1. Add this Type Guard to prove to TypeScript we are in full_home mode
+    if (buildData.calculatorType !== "full_home") return;
+    if (
+      !buildData.configuration.bhkType ||
+      !customerDetails.state ||
+      !customerDetails.country ||
+      customerDetails.latitude == null ||
+      customerDetails.longitude == null ||
+      !customerDetails.recaptchaToken
+    ) {
+      throw new Error("Please select your BHK type and a complete location, then verify your submission.");
+    }
+
     const finalPayload: QuoteRequest = {
       calculatorType: "full_home",
       configuration: {
-        bhkType: buildData.bhkType || "",
-        builtupArea: buildData.builtupArea || "",
-        rooms: buildData.rooms,
-        package: (buildData.packageLevel || "").toUpperCase(),
+        // 2. Add .configuration to all these paths
+        bhkType: buildData.configuration.bhkType,
+        builtupArea: buildData.configuration.builtupArea || "",
+        rooms: buildData.configuration.rooms || {
+          living: 0,
+          kitchen: 0,
+          bedroom: 0,
+          bathroom: 0,
+          dining: 0,
+        },
+        package: buildData.configuration.package || "",
       },
       name: customerDetails.name,
       phone: customerDetails.phone,
@@ -150,9 +192,9 @@ export const FullHomeCalculator = () => {
         latitude: customerDetails.latitude,
         longitude: customerDetails.longitude,
       },
-
       recaptchaToken: customerDetails.recaptchaToken,
     };
+    // ... rest of the try/catch block remains the same
 
     try {
       const response = await mutateAsync(finalPayload);
@@ -162,6 +204,9 @@ export const FullHomeCalculator = () => {
       // Error is handled by useMutation onError
     }
   };
+
+  const config =
+    buildData.calculatorType === "full_home" ? buildData.configuration : null;
 
   return (
     <div className="min-h-screen bg-[#fcfbf9] py-2 sm:py-12 px-4 sm:px-6 lg:px-8">
@@ -224,42 +269,60 @@ export const FullHomeCalculator = () => {
         <div
           className={`p-8 md:p-12 ${step === 5 ? "" : "min-h-[500px]"} flex flex-col`}
         >
-          {step === 1 && (
+          {step === 1 && config && (
             <Step1Bhk
-              current={buildData.bhkType}
-              builtupArea={buildData.builtupArea}
+              current={config?.bhkType ?? ""}
+              builtupArea={config?.builtupArea ?? ""}
               areaOptions={
-                buildData.bhkType
-                  ? BHK_ROOM_CONFIGS[buildData.bhkType]?.areaOptions
+                config.bhkType
+                  ? BHK_ROOM_CONFIGS[config.bhkType]?.areaOptions
                   : []
               }
               onSelect={(val) => {
-                const config = BHK_ROOM_CONFIGS[val];
-                setBuildData((prev) => ({
-                  ...prev,
-                  bhkType: val,
-                  builtupArea: null,
-                  rooms: config ? config.defaults : prev.rooms,
-                }));
+                const roomConfig = BHK_ROOM_CONFIGS[val];
+                setBuildData((prev) => {
+                  if (prev.calculatorType !== "full_home") return prev;
+                  return {
+                    ...prev,
+                    configuration: {
+                      ...prev.configuration,
+                      bhkType: val,
+                      builtupArea: "", // <-- Changed from null to ""
+                      rooms: roomConfig
+                        ? roomConfig.defaults
+                        : prev.configuration.rooms,
+                    },
+                  };
+                });
               }}
               onSelectArea={(val) => {
-                updateBuild("builtupArea", val);
+                updateConfig("builtupArea", val);
               }}
               onContinue={handleNext}
             />
           )}
-          {step === 2 && (
+
+          {step === 2 && config && (
             <Step2Rooms
-              counts={buildData.rooms}
-              bhkType={buildData.bhkType}
-              onChange={(val) => updateBuild("rooms", val)}
+              counts={
+                config.rooms || {
+                  living: 1,
+                  kitchen: 1,
+                  bedroom: 1,
+                  bathroom: 1,
+                  dining: 0,
+                }
+              }
+              bhkType={config?.bhkType ?? ""} // <-- Changed to use config
+              onChange={(val) => updateConfig("rooms", val)}
             />
           )}
-          {step === 3 && (
+
+          {step === 3 && config && (
             <Step3Package
-              current={buildData.packageLevel}
+              current={config?.package ?? ""} // <-- Changed to config.package
               onSelect={(val) => {
-                updateBuild("packageLevel", val);
+                updateConfig("package", val); // <-- Changed to updateConfig and "package"
                 handleNext();
               }}
             />
@@ -297,7 +360,7 @@ export const FullHomeCalculator = () => {
                   onClick={handleNext}
                   disabled={
                     step === 1
-                      ? !buildData.bhkType || !buildData.builtupArea
+                      ? !config?.bhkType || !config?.builtupArea
                       : false
                   }
                   className="group flex items-center gap-2 bg-[#13503B] text-white px-8 py-3.5 rounded-full font-bold tracking-widest text-xs transition-all hover:bg-[#0d3528] shadow-xl shadow-[#13503B]/20 disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
@@ -330,7 +393,7 @@ const Step1Bhk = ({
   current: string | null;
   builtupArea: string | null;
   areaOptions: string[];
-  onSelect: (val: string) => void;
+  onSelect: (val: FullHomeConfiguration["bhkType"]) => void;
   onSelectArea: (val: string) => void;
   onContinue: () => void;
 }) => {
@@ -338,7 +401,12 @@ const Step1Bhk = ({
   const [tempAreaSize, setTempAreaSize] = useState<string | null>(builtupArea);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
 
-  const options = ["1BHK", "2BHK", "3BHK", "4+ BHK / Villa"];
+  const options: FullHomeConfiguration["bhkType"][] = [
+    "1BHK",
+    "2BHK",
+    "3BHK",
+    "4+ BHK / Villa",
+  ];
   return (
     <div className="text-center animate-fadeIn">
       <div className="inline-flex items-center justify-center w-16 h-16 bg-[#13503B]/5 rounded-full mb-6 text-[#13503B]">
@@ -516,7 +584,7 @@ const Step2Rooms = ({
   const maxDining = config?.maxDining ?? 99;
 
   const updateCount = (room: keyof RoomCounts, delta: number) => {
-    const nextVal = counts[room] + delta;
+    const nextVal = (counts[room] ?? 0) + delta;
     if (room === "living" && nextVal > maxLiving) {
       return;
     }
@@ -568,7 +636,7 @@ const Step2Rooms = ({
             isPlusDisabled = true;
           if (key === "bathroom" && counts[key] >= maxBathrooms)
             isPlusDisabled = true;
-          if (key === "dining" && counts[key] >= maxDining)
+          if (key === "dining" && (counts[key] ?? 0) >= maxDining)
             isPlusDisabled = true;
           return (
             <div
@@ -583,7 +651,7 @@ const Step2Rooms = ({
                 >
                   -
                 </button>
-                <span className="w-4 font-black text-lg">{counts[key]}</span>
+                <span className="w-4 font-black text-lg">{counts[key] ?? 0}</span>
                 <button
                   onClick={() => updateCount(key, 1)}
                   disabled={isPlusDisabled}
@@ -656,18 +724,21 @@ export const Step3Package: React.FC<Step3PackageProps> = ({
 }) => {
   const packages = [
     {
+      value: "ESSENTIAL",
       name: "Essential",
       desc: "Best value with standard premium materials.",
       tag: "Budget Friendly",
       images: ASSETS.calculator.packages.general.essential,
     },
     {
+      value: "PREMIUM",
       name: "Premium",
       desc: "High-quality finishes with designer touches.",
       tag: "Most Popular",
       images: ASSETS.calculator.packages.general.premium,
     },
     {
+      value: "LUXURY",
       name: "Luxury",
       desc: "Elite imported materials and customized luxury.",
       tag: "Signature",
@@ -687,11 +758,11 @@ export const Step3Package: React.FC<Step3PackageProps> = ({
       <div className="space-y-4 max-w-lg mx-auto">
         {packages.map((pkg) => (
           <button
-            key={pkg.name}
+            key={pkg.value}
             type="button"
-            onClick={() => onSelect(pkg.name)}
+            onClick={() => onSelect(pkg.value)}
             className={`relative w-full text-left rounded-2xl border-2 transition-all duration-300 flex flex-col sm:flex-row gap-0 cursor-pointer overflow-hidden ${
-              current === pkg.name
+              current === pkg.value
                 ? "border-[#C5A059] bg-[#C5A059]/5 shadow-lg scale-[1.02]"
                 : "border-gray-100 hover:border-[#13503B] bg-white hover:shadow-md hover:scale-[1.01]"
             }`}

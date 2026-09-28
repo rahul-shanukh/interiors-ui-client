@@ -46,6 +46,7 @@ const kitchenLayouts = [
 const PACKAGES = [
   {
     id: "essential",
+    value: "ESSENTIAL",
     name: "Essential",
     tag: "Budget Friendly",
     description:
@@ -54,6 +55,7 @@ const PACKAGES = [
   },
   {
     id: "premium",
+    value: "PREMIUM",
     name: "Premium",
     tag: "Most Popular",
     description:
@@ -62,6 +64,7 @@ const PACKAGES = [
   },
   {
     id: "luxe",
+    value: "LUXURY",
     name: "Luxury",
     tag: "Signature Luxury",
     description:
@@ -209,7 +212,7 @@ export const KitchenCalculator: React.FC = () => {
       kitchenLayouts.map((l) => [l.id, l.name]),
     );
     const packageNameMap = Object.fromEntries(
-      PACKAGES.map((p) => [p.id, p.name]),
+      PACKAGES.map((p) => [p.id, p.value]),
     );
 
     const payload = mapKitchenUiToQuoteRequest({

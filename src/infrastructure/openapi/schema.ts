@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-    "/api/v1/internal/tasks/process-notification": {
+    "/internal/tasks/process-notification": {
         parameters: {
             query?: never;
             header?: never;
@@ -20,7 +20,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/health/live": {
+    "/health/live": {
         parameters: {
             query?: never;
             header?: never;
@@ -36,7 +36,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/health/ready": {
+    "/health/ready": {
         parameters: {
             query?: never;
             header?: never;
@@ -52,7 +52,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/health": {
+    "/health": {
         parameters: {
             query?: never;
             header?: never;
@@ -68,7 +68,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/uploads/presigned-url": {
+    "/health/circuit-breakers/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["HealthController_getCircuitBreakerHealth"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/health/circuit-breakers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["HealthController_getCircuitBreakers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/uploads/presigned-url": {
         parameters: {
             query?: never;
             header?: never;
@@ -88,7 +120,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/uploads/confirm": {
+    "/uploads/confirm": {
         parameters: {
             query?: never;
             header?: never;
@@ -108,27 +140,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/employees": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create employee
-         * @description Creates an employee record. Requires an ADMIN session.
-         */
-        post: operations["EmployeeController_createEmployee"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/quotes/request": {
+    "/quotes/request": {
         parameters: {
             query?: never;
             header?: never;
@@ -139,7 +151,7 @@ export interface paths {
         put?: never;
         /**
          * Request an interior quote
-         * @description Stores quote details, calculates an estimate, and dispatches a notification.
+         * @description Checks rate limits, stores quote details, calculates an estimate, and dispatches a notification.
          */
         post: operations["QuoteController_requestQuote"];
         delete?: never;
@@ -148,7 +160,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/metrics": {
+    "/metrics": {
         parameters: {
             query?: never;
             header?: never;
@@ -159,103 +171,6 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Log in with employee credentials
-         * @description Creates a server-side session and sets the session cookie.
-         */
-        post: operations["AuthController_login"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get current session user
-         * @description Returns the user stored in the current session cookie.
-         */
-        get: operations["AuthController_getCurrentUser"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Log out current user
-         * @description Destroys the active session and clears the session cookie.
-         */
-        post: operations["AuthController_logout"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/user/activate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Activate employee account
-         * @description Sets the initial password for an employee account and creates a session.
-         */
-        post: operations["UserController_activate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/user/{employeeId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete a user by employee ID */
-        delete: operations["UserController_deleteUser"];
         options?: never;
         head?: never;
         patch?: never;
@@ -339,131 +254,183 @@ export interface components {
              */
             status: string;
         };
-        AddressDto: {
-            /**
-             * @description Type of employee address.
-             * @example CURRENT
-             * @enum {string}
-             */
-            type: "PERMANENT" | "CURRENT" | "OFFICE";
-            /**
-             * @description Street address line.
-             * @example 12 MG Road
-             */
-            street: string;
-            /**
-             * @description City for the address.
-             * @example Bengaluru
-             */
+        QuoteLocationDto: {
+            /** @example Bangalore */
             city: string;
-            /**
-             * @description State for the address.
-             * @example Karnataka
-             */
+            /** @example Karnataka */
             state: string;
-            /**
-             * @description Postal or ZIP code.
-             * @example 560001
-             */
-            postalCode: string;
-            /**
-             * @description Country for the address.
-             * @example India
-             */
+            /** @example India */
             country: string;
+            /** @example 12.9716 */
+            latitude: number;
+            /** @example 77.5946 */
+            longitude: number;
         };
-        CreateEmployeeDto: {
-            /**
-             * @description Unique employee identifier.
-             * @example SE282
-             */
-            empId: string;
-            /**
-             * @description Employee first name.
-             * @example Aarav
-             */
-            firstName: string;
-            /**
-             * @description Employee last name.
-             * @example Sharma
-             */
-            lastName: string;
-            /**
-             * @description Employee email address.
-             * @example aarav.sharma@example.com
-             */
-            email: string;
-            /**
-             * @description Employee role in the organization.
-             * @example EMPLOYEE
-             * @enum {string}
-             */
-            role: "MANAGER" | "EMPLOYEE" | "IT" | "HR" | "PMO" | "ADMIN";
-            /** @description Employee addresses. */
-            addresses: components["schemas"]["AddressDto"][];
-        };
-        MessageResponseDto: {
-            /**
-             * @description Human-readable operation result message.
-             * @example Operation completed successfully
-             */
-            message: string;
-        };
-        RoomCountsDto: {
-            /**
-             * @description Living rooms count.
-             * @example 1
-             */
+        FullHomeRoomCountsDto: {
+            /** @example 1 */
             living: number;
-            /**
-             * @description Kitchens count.
-             * @example 1
-             */
+            /** @example 1 */
             kitchen: number;
-            /**
-             * @description Bedrooms count.
-             * @example 2
-             */
+            /** @example 2 */
             bedroom: number;
-            /**
-             * @description Bathrooms count.
-             * @example 2
-             */
+            /** @example 2 */
             bathroom: number;
             /**
-             * @description Dining rooms count.
+             * @default 0
              * @example 1
              */
             dining?: number;
+            /**
+             * @default 0
+             * @example 1
+             */
+            balcony?: number;
+            /**
+             * @default 0
+             * @example 1
+             */
+            pooja?: number;
+            /**
+             * @default 0
+             * @example 1
+             */
+            laundry?: number;
         };
-        CreateQuoteDto: {
+        FullHomeConfigurationDto: {
             /**
-             * @description Home or apartment configuration.
-             * @example 2 BHK
+             * @example 2BHK
+             * @enum {string}
              */
-            bhkType: string;
-            /** @description Room counts used to calculate the estimate. */
-            rooms: components["schemas"]["RoomCountsDto"];
-            /**
-             * @description Selected interior package.
-             * @example Premium
-             */
+            bhkType: "1BHK" | "2BHK" | "3BHK" | "4+ BHK / Villa";
+            /** @example 1500 sqft */
+            builtupArea: string;
+            rooms: components["schemas"]["FullHomeRoomCountsDto"];
+            /** @example PREMIUM */
             package: string;
+            /** @example MODERN */
+            designStyle?: string;
             /**
-             * @description Client name.
-             * @example Priya Nair
+             * @example [
+             *       "Warm lighting",
+             *       "Minimal cabinets"
+             *     ]
              */
+            designPreferences?: string[];
+        };
+        CreateFullHomeQuoteDto: {
+            /**
+             * @example full_home
+             * @enum {string}
+             */
+            calculatorType: "full_home";
+            /** @example Priya Nair */
             name: string;
-            /**
-             * @description Indian phone number for quote follow-up.
-             * @example +919876543210
-             */
+            /** @example +919876543210 */
             phone: string;
-            /**
-             * @description Client email address.
-             * @example priya.nair@example.com
-             */
+            /** @example priya.nair@example.com */
             email: string;
+            location: components["schemas"]["QuoteLocationDto"];
+            /** @example recaptcha-token */
+            recaptchaToken: string;
+            configuration: components["schemas"]["FullHomeConfigurationDto"];
+        };
+        KitchenConfigurationDto: {
+            /** @example Premium */
+            package: string;
+            /** @example Kitchen (Straight) */
+            layout: string;
+            /** @example A: 8ft (Total: 8ft) */
+            builtupArea: string;
+        };
+        CreateKitchenQuoteDto: {
+            /**
+             * @example kitchen
+             * @enum {string}
+             */
+            calculatorType: "kitchen";
+            /** @example Priya Nair */
+            name: string;
+            /** @example +919876543210 */
+            phone: string;
+            /** @example priya.nair@example.com */
+            email: string;
+            location: components["schemas"]["QuoteLocationDto"];
+            /** @example recaptcha-token */
+            recaptchaToken: string;
+            configuration: components["schemas"]["KitchenConfigurationDto"];
+        };
+        DimensionsDto: {
+            /**
+             * @description Width in feet
+             * @example 6
+             */
+            widthFeet: number;
+            /**
+             * @description Height in feet
+             * @example 8
+             */
+            heightFeet: number;
+        };
+        MaterialsDto: {
+            /**
+             * @description Core material type
+             * @example HDHMR
+             */
+            core: string;
+            /**
+             * @description Finish material type
+             * @example Laminate
+             */
+            finish: string;
+        };
+        WardrobeConfigurationDto: {
+            /**
+             * @description Type of wardrobe structure
+             * @example Sliding Door
+             */
+            wardrobeType: string;
+            /**
+             * @description Length display value
+             * @example 6
+             */
+            length: string;
+            /**
+             * @description Height display value
+             * @example 8
+             */
+            height: string;
+            /**
+             * @description Package tier
+             * @example PREMIUM
+             */
+            package?: string;
+            dimensions: components["schemas"]["DimensionsDto"];
+            materials: components["schemas"]["MaterialsDto"];
+            /**
+             * @description List of selected accessories
+             * @example [
+             *       "Drawers",
+             *       "LED Lighting"
+             *     ]
+             */
+            accessories: string[];
+        };
+        CreateWardrobeQuoteDto: {
+            /**
+             * @example wardrobe
+             * @enum {string}
+             */
+            calculatorType: "wardrobe";
+            /** @example Priya Nair */
+            name: string;
+            /** @example +919876543210 */
+            phone: string;
+            /** @example priya.nair@example.com */
+            email: string;
+            location: components["schemas"]["QuoteLocationDto"];
+            /** @example recaptcha-token */
+            recaptchaToken: string;
+            configuration: components["schemas"]["WardrobeConfigurationDto"];
         };
         CreateQuoteResponseDto: {
             /**
@@ -486,82 +453,6 @@ export interface components {
              * @example 350000
              */
             estimatedPrice: number;
-        };
-        LoginDto: {
-            /**
-             * @description Username or employee identifier used to sign in.
-             * @example SE282
-             */
-            username: string;
-            /**
-             * @description Account password.
-             * @example StrongPass123
-             */
-            password: string;
-        };
-        AuthUserDto: {
-            /**
-             * @description Internal user identifier.
-             * @example 681ef9c6f24f8f2a2e2d5c1b
-             */
-            userId: string;
-            /**
-             * @description Employee identifier linked to the user account.
-             * @example SE282
-             */
-            employeeId: string;
-            /**
-             * @description Current user role.
-             * @example ADMIN
-             */
-            role: string;
-            /**
-             * @description Display name for the authenticated user.
-             * @example System Admin
-             */
-            name?: string;
-        };
-        AuthResponseDto: {
-            /**
-             * @description Authentication result message.
-             * @example Login successful
-             */
-            message: string;
-            /** @description Authenticated user session payload. */
-            user: components["schemas"]["AuthUserDto"];
-        };
-        CurrentUserResponseDto: {
-            /** @description Current authenticated user from the session. */
-            user: components["schemas"]["AuthUserDto"];
-        };
-        ActivateUserDto: {
-            /**
-             * @description Employee identifier for the account being activated.
-             * @example SE282
-             */
-            employeeId: string;
-            /**
-             * @description Password to set for the employee account.
-             * @example StrongPass123
-             */
-            password: string;
-        };
-        ActivateUserResponseDto: {
-            /**
-             * @description Activation result message.
-             * @example Account activated successfully. You are now logged in.
-             */
-            message: string;
-            /**
-             * @description Created or activated user identifier.
-             * @example 681ef9c6f24f8f2a2e2d5c1b
-             */
-            userId: string;
-            /**
-             * @description Employee identifier linked to the activated user.
-             * @example SE282
-             */
-            employeeId: string;
         };
     };
     responses: never;
@@ -744,6 +635,42 @@ export interface operations {
             };
         };
     };
+    HealthController_getCircuitBreakerHealth: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    HealthController_getCircuitBreakers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     UploadsController_getPresignedUrl: {
         parameters: {
             query?: never;
@@ -806,44 +733,6 @@ export interface operations {
             };
         };
     };
-    EmployeeController_createEmployee: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateEmployeeDto"];
-            };
-        };
-        responses: {
-            /** @description Employee was created successfully. */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MessageResponseDto"];
-                };
-            };
-            /** @description Current session user does not have the ADMIN role. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Employee ID or email already exists. */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     QuoteController_requestQuote: {
         parameters: {
             query?: never;
@@ -853,7 +742,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateQuoteDto"];
+                "application/json": components["schemas"]["CreateFullHomeQuoteDto"] | components["schemas"]["CreateKitchenQuoteDto"] | components["schemas"]["CreateWardrobeQuoteDto"];
             };
         };
         responses: {
@@ -865,6 +754,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["CreateQuoteResponseDto"];
                 };
+            };
+            /** @description Too many requests. Rate limit exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -878,145 +774,6 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_login: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LoginDto"];
-            };
-        };
-        responses: {
-            /** @description Login succeeded and session was created. */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthResponseDto"];
-                };
-            };
-            /** @description Credentials are invalid or the user cannot be authenticated. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_getCurrentUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Current user session payload. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CurrentUserResponseDto"];
-                };
-            };
-            /** @description Session cookie is missing or expired. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_logout: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Logout succeeded. */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MessageResponseDto"];
-                };
-            };
-        };
-    };
-    UserController_activate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ActivateUserDto"];
-            };
-        };
-        responses: {
-            /** @description Account activated and session created. */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ActivateUserResponseDto"];
-                };
-            };
-        };
-    };
-    UserController_deleteUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Employee identifier for the user account to delete. */
-                employeeId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User was deleted. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MessageResponseDto"];
-                };
-            };
-            /** @description Current session user does not have the ADMIN role. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description No user was found for the supplied employee ID. */
-            404: {
                 headers: {
                     [name: string]: unknown;
                 };

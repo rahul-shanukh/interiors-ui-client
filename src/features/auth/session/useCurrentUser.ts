@@ -1,5 +1,7 @@
+//src/features/auth/session/useCurrentUser.ts
+
 import { useQuery } from "@tanstack/react-query";
-import type { ApiError } from "../../../infrastructure/http/api-client";
+import type { ApiError } from "../../../infrastructure/openapi/api";
 import type { AuthUser } from "../login/types";
 import { getCurrentUser } from "./api";
 

@@ -11,6 +11,8 @@ import { useQuote } from "../../../entities/quote/hooks/useQuoteMutation";
 import type {
   QuoteRequest,
   CustomerDetails,
+  CalculatorBuildState,
+  WardrobeConfiguration,
 } from "../../../entities/quote/model/quote.types";
 import { QuoteContactStep } from "./reuse_components/QuoteContactStep";
 import slideDoorImg from "../../../assets/features/calculator/layouts/wardrobe/door-types/slidingdoor.avif";
@@ -267,16 +269,46 @@ export const WardrobeCalculator: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(0);
 
   // Wardrobe Configuration State
-  const [selectedLength, setSelectedLength] = useState<string>("6");
-  // const [customLength, setCustomLength] = useState<number>(6);
-  const [selectedHeight, setSelectedHeight] = useState<string>("8");
-  const [selectedType, setSelectedType] = useState<string>("Sliding Door");
-  const [selectedMaterial, setSelectedMaterial] = useState<string>("HDHMR");
-  const [selectedFinish, setSelectedFinish] = useState<string>("Laminate");
-  const [selectedAccessories, setSelectedAccessories] = useState<string[]>([
-    "Drawers",
-    "LED Lighting",
-  ]);
+  const [buildData, setBuildData] = useState<CalculatorBuildState>({
+    calculatorType: "wardrobe",
+    configuration: {
+      wardrobeType: "Sliding Door",
+      length: "6",
+      height: "8",
+      package: "", // Default empty or set a base package like "Standard"
+      dimensions: {
+        widthFeet: 6,
+        heightFeet: 8,
+      },
+      materials: {
+        core: "HDHMR",
+        finish: "Laminate",
+      },
+      accessories: ["Drawers", "LED Lighting"],
+    },
+    customerDetails: null,
+  });
+
+  // The Golden Key: proves to TypeScript we are in Wardrobe mode
+  const config =
+    buildData.calculatorType === "wardrobe" ? buildData.configuration : null;
+
+  // The universal, type-safe updater
+  const updateConfig = <K extends keyof WardrobeConfiguration>(
+    key: K,
+    value: WardrobeConfiguration[K],
+  ) => {
+    setBuildData((prev) => {
+      if (prev.calculatorType !== "wardrobe") return prev;
+      return {
+        ...prev,
+        configuration: {
+          ...prev.configuration,
+          [key]: value,
+        },
+      };
+    });
+  };
 
   // Smooth scroll to top on step change
   React.useEffect(() => {
@@ -310,42 +342,70 @@ export const WardrobeCalculator: React.FC = () => {
   };
 
   const toggleAccessory = (id: string) => {
-    setSelectedAccessories((prev) =>
-      prev.includes(id) ? prev.filter((acc) => acc !== id) : [...prev, id],
-    );
+    if (!config) return; // Safety check
+
+    // Fallback to empty array if undefined
+    const currentAccessories = config.accessories || [];
+
+    const newAccessories = currentAccessories.includes(id)
+      ? currentAccessories.filter((acc) => acc !== id) // Remove if already checked
+      : [...currentAccessories, id]; // Add if not checked
+
+    updateConfig("accessories", newAccessories);
   };
 
   const submitToBackend = async (customerDetails: CustomerDetails) => {
-    const displayLength = selectedLength.includes("ft")
-      ? selectedLength
-      : `${selectedLength} ft`;
-    const displayHeight =
-      selectedHeight === "Ceiling Height"
-        ? "Ceiling Height"
-        : selectedHeight.includes("ft")
-          ? selectedHeight
-          : `${selectedHeight} ft`;
-    const accessoriesText =
-      selectedAccessories.length > 0 ? selectedAccessories.join(", ") : "None";
-    const payload: QuoteRequest = {
+    // 1. Type Guard: Prove to TypeScript we are in wardrobe mode
+    if (buildData.calculatorType !== "wardrobe") return;
+
+    if (
+      !customerDetails.state ||
+      !customerDetails.country ||
+      customerDetails.latitude == null ||
+      customerDetails.longitude == null ||
+      !customerDetails.recaptchaToken
+    ) {
+      throw new Error("Please select a complete location and verify your submission before continuing.");
+    }
+
+    // 2. Safely grab our current configuration
+    const currentConfig = buildData.configuration;
+
+    // 3. Build the clean payload matching the QuoteRequest interface
+    const finalPayload: QuoteRequest = {
       calculatorType: "wardrobe",
-      bhkType: `Wardrobe (${selectedType})`,
-      areaSize: `${displayLength} x ${displayHeight} (Material: ${selectedMaterial}, Finish: ${selectedFinish}, Accessories: ${accessoriesText})`,
-      rooms: { living: 0, kitchen: 0, bedroom: 1, bathroom: 0, dining: 0 },
-      package: `${selectedMaterial} + ${selectedFinish} (Accessories: ${accessoriesText})`,
+      configuration: {
+        wardrobeType: currentConfig.wardrobeType || "",
+        length: currentConfig.length || "",
+        height: currentConfig.height || "",
+        package: currentConfig.package || "",
+        dimensions: {
+          widthFeet: currentConfig.dimensions?.widthFeet || 0,
+          heightFeet: currentConfig.dimensions?.heightFeet || 0,
+        },
+        materials: {
+          core: currentConfig.materials?.core || "",
+          finish: currentConfig.materials?.finish || "",
+        },
+        accessories: currentConfig.accessories || [],
+      },
       name: customerDetails.name,
       phone: customerDetails.phone,
       email: customerDetails.email,
-      city: customerDetails.city,
-      latitude: customerDetails.latitude,
-      longitude: customerDetails.longitude,
+      location: {
+        city: customerDetails.city,
+        state: customerDetails.state,
+        country: customerDetails.country,
+        latitude: customerDetails.latitude,
+        longitude: customerDetails.longitude,
+      },
       recaptchaToken: customerDetails.recaptchaToken,
     };
 
     setForm(customerDetails);
 
     try {
-      const response = await mutateAsync(payload);
+      const response = await mutateAsync(finalPayload);
       setEstimatedPrice(response.estimatedPrice);
       setCurrentStep(7); // Results Step
     } catch (error) {
@@ -429,10 +489,10 @@ export const WardrobeCalculator: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => {
-                        setSelectedType(t.id);
+                        updateConfig("wardrobeType", t.id);
                       }}
                       className={`relative rounded-2xl border-2 overflow-hidden transition-all duration-300 h-48 w-full cursor-pointer ${
-                        selectedType === t.id
+                        config?.wardrobeType === t.id
                           ? "border-[#C5A059] shadow-lg scale-[1.02]"
                           : "border-gray-100 hover:border-[#13503B] hover:shadow-md hover:scale-[1.01]"
                       }`}
@@ -446,7 +506,7 @@ export const WardrobeCalculator: React.FC = () => {
                       <span className="absolute bottom-3 left-4 z-20 text-base font-bold text-white tracking-wide">
                         {t.name}
                       </span>
-                      {selectedType === t.id && (
+                      {config?.wardrobeType === t.id && (
                         <div className="absolute top-3 right-3 bg-[#C5A059] text-white rounded-full p-1.5 shadow-md z-20 animate-scaleIn">
                           <CheckCircle2 size={14} />
                         </div>
@@ -487,9 +547,9 @@ export const WardrobeCalculator: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
                       <CalculatorDropdown
-                        value={selectedLength}
+                        value={config?.length || ""}
                         options={LENGTHS}
-                        onChange={(val) => setSelectedLength(val)}
+                        onChange={(val) => updateConfig("length", val)}
                       />
                     </div>
                     <span className="text-base font-bold text-gray-550 w-6 text-right">
@@ -509,13 +569,13 @@ export const WardrobeCalculator: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
                       <CalculatorDropdown
-                        value={selectedHeight}
+                        value={config?.height || ""}
                         options={HEIGHTS}
-                        onChange={(val) => setSelectedHeight(val)}
+                        onChange={(val) => updateConfig("height", val)}
                       />
                     </div>
                     <span className="text-base font-bold text-gray-550 w-6 text-right transition-all">
-                      {selectedHeight === "Ceiling Height" ? "" : "ft"}
+                      {config?.height === "Ceiling Height" ? "" : "ft"}
                     </span>
                   </div>
                   <p className="text-gray-400 text-[10px] text-left mt-1.5 pl-1">
@@ -544,10 +604,14 @@ export const WardrobeCalculator: React.FC = () => {
                   <button
                     key={f.id}
                     onClick={() => {
-                      setSelectedFinish(f.id);
+                      // Safely update the 'finish' inside the materials object
+                      updateConfig("materials", {
+                        core: config?.materials?.core || "", // Keep the current core
+                        finish: f.id, // Set the new finish
+                      });
                     }}
                     className={`relative rounded-2xl border-2 overflow-hidden transition-all duration-300 min-h-[160px] sm:min-h-[240px] text-left group cursor-pointer ${
-                      selectedFinish === f.id
+                      config?.materials?.finish === f.id
                         ? "border-[#C5A059] shadow-lg scale-[1.02]"
                         : "border-gray-100 hover:border-[#13503B] hover:shadow-md hover:scale-[1.01]"
                     }`}
@@ -559,13 +623,13 @@ export const WardrobeCalculator: React.FC = () => {
                     />
                     <div
                       className={`absolute inset-0 transition-all duration-300 z-10 ${
-                        selectedFinish === f.id
+                        config?.materials?.finish === f.id
                           ? "bg-gradient-to-t from-[#13503B]/95 via-[#13503B]/60 to-[#13503B]/20"
                           : "bg-gradient-to-t from-black/85 via-black/45 to-transparent group-hover:from-black/90 group-hover:via-black/55"
                       }`}
                     />
 
-                    {selectedFinish === f.id && (
+                    {config?.materials?.finish === f.id && (
                       <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-[#C5A059] text-white rounded-full p-1.5 shadow-md z-20 animate-scaleIn">
                         <CheckCircle2 size={14} className="sm:w-4 sm:h-4" />
                       </div>
@@ -609,10 +673,15 @@ export const WardrobeCalculator: React.FC = () => {
                   <button
                     key={mat.id}
                     onClick={() => {
-                      setSelectedMaterial(mat.id);
+                      // Safely update the 'core' inside the materials object
+                      updateConfig("materials", {
+                        core: mat.id,
+                        finish: config?.materials?.finish || "",
+                      });
                     }}
                     className={`relative rounded-2xl border-2 overflow-hidden transition-all duration-300 min-h-[160px] sm:min-h-[240px] text-left group cursor-pointer ${
-                      selectedMaterial === mat.id
+                      // Check the new config path to see if it's selected
+                      config?.materials?.core === mat.id
                         ? "border-[#C5A059] shadow-lg scale-[1.02]"
                         : "border-gray-100 hover:border-[#13503B] hover:shadow-md hover:scale-[1.01]"
                     }`}
@@ -624,7 +693,7 @@ export const WardrobeCalculator: React.FC = () => {
                     />
                     <div
                       className={`absolute inset-0 transition-all duration-300 z-10 ${
-                        selectedMaterial === mat.id
+                        config?.materials?.core === mat.id
                           ? "bg-gradient-to-t from-[#13503B]/95 via-[#13503B]/60 to-[#13503B]/20"
                           : "bg-gradient-to-t from-black/85 via-black/45 to-transparent group-hover:from-black/90 group-hover:via-black/55"
                       }`}
@@ -635,7 +704,7 @@ export const WardrobeCalculator: React.FC = () => {
                       {mat.badge}
                     </span>
 
-                    {selectedMaterial === mat.id && (
+                    {config?.materials?.core === mat.id && (
                       <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-[#C5A059] text-white rounded-full p-1.5 shadow-md z-20 animate-scaleIn">
                         <CheckCircle2 size={14} className="sm:w-4 sm:h-4" />
                       </div>
@@ -671,7 +740,7 @@ export const WardrobeCalculator: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8 max-h-[460px] overflow-y-auto pr-1">
                 {ACCESSORIES.map((acc) => {
-                  const isChecked = selectedAccessories.includes(acc.id);
+                  const isChecked = config?.accessories?.includes(acc.id);
                   return (
                     <button
                       key={acc.id}
@@ -735,9 +804,9 @@ export const WardrobeCalculator: React.FC = () => {
                       Wardrobe Length
                     </span>
                     <span className="text-sm font-bold text-gray-800 font-sans">
-                      {selectedLength.includes("ft")
-                        ? selectedLength
-                        : `${selectedLength} ft`}
+                      {config?.length?.includes("ft")
+                        ? config?.length
+                        : `${config?.length} ft`}
                     </span>
                   </div>
                   <button
@@ -755,11 +824,11 @@ export const WardrobeCalculator: React.FC = () => {
                       Wardrobe Height
                     </span>
                     <span className="text-sm font-bold text-gray-800">
-                      {selectedHeight === "Ceiling Height"
+                      {config?.height === "Ceiling Height"
                         ? "Ceiling Height"
-                        : selectedHeight.includes("ft")
-                          ? selectedHeight
-                          : `${selectedHeight} ft`}
+                        : config?.height?.includes("ft")
+                          ? config?.height
+                          : `${config?.height} ft`}
                     </span>
                   </div>
                   <button
@@ -777,8 +846,8 @@ export const WardrobeCalculator: React.FC = () => {
                       Wardrobe Type
                     </span>
                     <span className="text-sm font-bold text-gray-800">
-                      {TYPES.find((t) => t.id === selectedType)?.name ||
-                        selectedType}
+                      {TYPES.find((t) => t.id === config?.wardrobeType)?.name ||
+                        config?.wardrobeType}
                     </span>
                   </div>
                   <button
@@ -796,8 +865,8 @@ export const WardrobeCalculator: React.FC = () => {
                       Finish
                     </span>
                     <span className="text-sm font-bold text-gray-800">
-                      {FINISHES.find((f) => f.id === selectedFinish)?.name ||
-                        selectedFinish}
+                      {FINISHES.find((f) => f.id === config?.materials?.finish)
+                        ?.name || config?.materials?.finish}
                     </span>
                   </div>
                   <button
@@ -815,8 +884,8 @@ export const WardrobeCalculator: React.FC = () => {
                       Material
                     </span>
                     <span className="text-sm font-bold text-gray-800">
-                      {MATERIALS.find((m) => m.id === selectedMaterial)?.name ||
-                        selectedMaterial}
+                      {MATERIALS.find((m) => m.id === config?.materials?.core)
+                        ?.name || config?.materials?.core}
                     </span>
                   </div>
                   <button
@@ -834,8 +903,8 @@ export const WardrobeCalculator: React.FC = () => {
                       Accessories
                     </span>
                     <span className="text-sm font-bold text-gray-800">
-                      {selectedAccessories.length > 0
-                        ? selectedAccessories
+                      {config?.accessories && config.accessories.length > 0
+                        ? config.accessories
                             .map(
                               (id) =>
                                 ACCESSORIES.find((a) => a.id === id)?.name ||

@@ -20,6 +20,16 @@ export const mapKitchenUiToQuoteRequest = ({
   layoutNameMap,
   packageNameMap,
 }: KitchenMapperInput): QuoteRequest => {
+  if (
+    !customerDetails.state ||
+    !customerDetails.country ||
+    customerDetails.latitude == null ||
+    customerDetails.longitude == null ||
+    !customerDetails.recaptchaToken
+  ) {
+    throw new Error("Please select a complete location and verify your submission before continuing.");
+  }
+
   const totalLength = Object.values(measurements).reduce(
     (sum, val) => sum + val,
     0,
@@ -32,18 +42,23 @@ export const mapKitchenUiToQuoteRequest = ({
 
   return {
     calculatorType: "kitchen",
-    bhkType: `Kitchen (${layoutNameMap[selectedLayoutId] || "Custom"})`,
-    builtupArea: areaSizeString,
-    rooms: { living: 0, kitchen: 1, bedroom: 0, bathroom: 0, dining: 0 },
-    package: packageNameMap[selectedPackageId] || "Premium",
+    // 1. Wrap in configuration
+    configuration: {
+      layout: `Kitchen (${layoutNameMap[selectedLayoutId] || "Custom"})`,
+      builtupArea: areaSizeString,
+      package: packageNameMap[selectedPackageId] || "Premium",
+    },
     name: customerDetails.name,
-    phone: customerDetails.phone, // Phone already contains country code from Step3Quote submission
-    email: customerDetails.email || "", // Resolves string | undefined error
-    city: customerDetails.city,
-    state: customerDetails.state,
-    country: customerDetails.country,
-    latitude: customerDetails.latitude,
-    longitude: customerDetails.longitude,
+    phone: customerDetails.phone,
+    email: customerDetails.email || "",
+    // 2. Wrap in location
+    location: {
+      city: customerDetails.city,
+      state: customerDetails.state,
+      country: customerDetails.country,
+      latitude: customerDetails.latitude,
+      longitude: customerDetails.longitude,
+    },
     recaptchaToken: customerDetails.recaptchaToken,
   };
 };

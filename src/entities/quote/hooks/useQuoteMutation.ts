@@ -1,10 +1,29 @@
 // src/entities/quote/hooks/useQuoteMutation.ts
 import { useMutation } from "@tanstack/react-query";
-import httpClient from "../../../infrastructure/http/api-client";
-import type { QuoteRequest, QuoteResponse } from "../model/quote.types";
+import {
+  unwrap,
+  type CreateQuoteRequest,
+  type CreateQuoteResponse,
+} from "../../../infrastructure/openapi/api";
+import { openApiClient } from "../../../infrastructure/openapi/client";
 
-const sendQuoteRequest = async (data: QuoteRequest): Promise<QuoteResponse> => {
-  return httpClient.post<QuoteResponse>("/quotes/request", data);
+type QuoteSubmission = {
+  data: CreateQuoteRequest;
+  idempotencyKey: string;
+};
+
+const sendQuoteRequest = async ({
+  data,
+  idempotencyKey,
+}: QuoteSubmission): Promise<CreateQuoteResponse> => {
+  const result = await openApiClient.POST("/quotes/request", {
+    body: data,
+    headers: {
+      "Idempotency-Key": idempotencyKey,
+    },
+  });
+
+  return unwrap(result);
 };
 
 const getStatusCode = (error: unknown): number | undefined => {
@@ -29,27 +48,26 @@ const getStatusCode = (error: unknown): number | undefined => {
 };
 
 export const useQuote = () => {
-  return useMutation({
+  const mutation = useMutation({
+    // TanStack reuses these variables, including the key, on automatic retries.
     mutationFn: sendQuoteRequest,
     retry: (failureCount, error) => {
       const statusCode = getStatusCode(error);
 
-      // 1. NEVER retry 4xx errors (including 429 Rate Limit and 409 Conflict)
+      // Validation, rate-limit, and conflict responses need caller action.
       if (statusCode && statusCode >= 400 && statusCode < 500) {
         return false;
       }
 
-      // 2. ONLY retry safe infrastructure errors: 502 (Bad Gateway) or 503 (Service Unavailable)
-      // These mean the request was blocked by Cloudflare/Load Balancer and never reached your DB.
+      // The quote may already be saved: backend key enforcement is still required.
       if (statusCode === 502 || statusCode === 503) {
-        return failureCount < 2; // Max 2 retries for infrastructure hiccups
+        return failureCount < 2; // At most two automatic retries.
       }
 
-      // 3. DO NOT retry network timeouts (undefined status) or 500s.
-      // The server might have successfully created the quote before the connection dropped.
+      // Keep other failures, including network errors and cancellation, non-retryable.
       return false;
     },
-    // Shorter max backoff so the user isn't staring at a spinner for 30+ seconds
+    // Back off between retries.
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
     onSuccess: (response) => {
       console.log("Backend calculated cost:", response.estimatedPrice);
@@ -58,4 +76,13 @@ export const useQuote = () => {
       console.error("Failed to generate quote", error);
     },
   });
+
+  // Each caller submission gets one key; a new manual call gets a new key.
+  return {
+    ...mutation,
+    mutate: (data: CreateQuoteRequest) =>
+      mutation.mutate({ data, idempotencyKey: crypto.randomUUID() }),
+    mutateAsync: (data: CreateQuoteRequest) =>
+      mutation.mutateAsync({ data, idempotencyKey: crypto.randomUUID() }),
+  };
 };
