@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaqSection } from "../home/ui/FaqSection";
 import { HomeFooter } from "../home/ui/HomeFooter";
 
@@ -15,6 +15,15 @@ import card1 from "../../assets/Design/card1.avif";
 import card2 from "../../assets/Design/card2.avif";
 import card3 from "../../assets/Design/card3.avif";
 import { useEffect, useState } from "react";
+
+const CATEGORIES = [
+  { slug: "kitchen", label: "Kitchen", image: category1 },
+  { slug: "bedroom", label: "Bedroom", image: category2 },
+  { slug: "wardrobe", label: "Wardrobe", image: category3 },
+  { slug: "bathroom", label: "Bathroom", image: category4 },
+  { slug: "kids-bedroom", label: "Kids Bedroom", image: category5 },
+  { slug: "rugs", label: "Rugs", image: category6 },
+];
 
 const ThemeHeader = () => {
   const navigate = useNavigate();
@@ -226,73 +235,22 @@ export const DesignIdeas = () => {
       {/* Categories Grid */}
       <section className="max-w-7xl mx-auto px-6 pb-20 md:pb-32">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-[1px] bg-[#e3dfd3] border border-[#e3dfd3]">
-          {/* Category 1 */}
-          <div className="bg-[#fcfaf5] p-12 md:p-16 flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-white transition-colors duration-300">
-            <img
-              src={category1}
-              alt="Kitchen"
-              className="w-32 h-32 md:w-48 md:h-48 object-contain mix-blend-multiply mb-8 group-hover:scale-105 transition-transform duration-500"
-            />
-            <h3 className="text-sm md:text-base font-semibold text-[#4a3f35]">
-              Kitchen
-            </h3>
-          </div>
-          {/* Category 2 */}
-          <div className="bg-[#fcfaf5] p-12 md:p-16 flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-white transition-colors duration-300">
-            <img
-              src={category2}
-              alt="Bedroom"
-              className="w-32 h-32 md:w-48 md:h-48 object-contain mix-blend-multiply mb-8 group-hover:scale-105 transition-transform duration-500"
-            />
-            <h3 className="text-sm md:text-base font-semibold text-[#4a3f35]">
-              Bedroom
-            </h3>
-          </div>
-          {/* Category 3 */}
-          <div className="bg-[#fcfaf5] p-12 md:p-16 flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-white transition-colors duration-300">
-            <img
-              src={category3}
-              alt="wardrobe"
-              className="w-32 h-32 md:w-48 md:h-48 object-contain mix-blend-multiply mb-8 group-hover:scale-105 transition-transform duration-500"
-            />
-            <h3 className="text-sm md:text-base font-semibold text-[#4a3f35]">
-              Wardrobe
-            </h3>
-          </div>
-          {/* Category 4 */}
-          <div className="bg-[#fcfaf5] p-12 md:p-16 flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-white transition-colors duration-300">
-            <img
-              src={category4}
-              alt="Bathroom"
-              className="w-32 h-32 md:w-48 md:h-48 object-contain mix-blend-multiply mb-8 group-hover:scale-105 transition-transform duration-500"
-            />
-            <h3 className="text-sm md:text-base font-semibold text-[#4a3f35]">
-              Bathroom
-            </h3>
-          </div>
-          {/* Category 5 */}
-          <div className="bg-[#fcfaf5] p-12 md:p-16 flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-white transition-colors duration-300">
-            <img
-              src={category5}
-              alt="Storage"
-              className="w-32 h-32 md:w-48 md:h-48 object-contain mix-blend-multiply mb-8 group-hover:scale-105 transition-transform duration-500"
-            />
-            <h3 className="text-sm md:text-base font-semibold text-[#4a3f35]">
-              Kids Bedroom
-            </h3>
-          </div>
-          {/* Category 6 */}
-
-          <div className="bg-[#fcfaf5] p-12 md:p-16 flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-white transition-colors duration-300">
-            <img
-              src={category6}
-              alt="Rugs"
-              className="w-32 h-32 md:w-48 md:h-48 object-contain mix-blend-multiply mb-8 group-hover:scale-105 transition-transform duration-500"
-            />
-            <h3 className="text-sm md:text-base font-semibold text-[#4a3f35]">
-              Rugs
-            </h3>
-          </div>
+          {CATEGORIES.map((category) => (
+            <Link
+              key={category.slug}
+              to={`/design-ideas/${category.slug}`}
+              className="bg-[#fcfaf5] p-12 md:p-16 flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-white transition-colors duration-300"
+            >
+              <img
+                src={category.image}
+                alt={category.label}
+                className="w-32 h-32 md:w-48 md:h-48 object-contain mix-blend-multiply mb-8 group-hover:scale-105 transition-transform duration-500"
+              />
+              <h3 className="text-sm md:text-base font-semibold text-[#4a3f35]">
+                {category.label}
+              </h3>
+            </Link>
+          ))}
         </div>
       </section>
 

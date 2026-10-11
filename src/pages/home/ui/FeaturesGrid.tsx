@@ -168,7 +168,7 @@ export const CustomerReviews = () => {
         <div className="absolute top-0 right-0 w-24 md:w-48 h-full bg-gradient-to-l from-[#0B1121] to-transparent z-30 pointer-events-none" />
 
         {/* Scrolling Track */}
-        <div className="flex gap-6 w-max animate-marquee group-hover:[animation-play-state:paused] px-4 items-center will-change-transform">
+        <div className="flex gap-6 w-max reviews-marquee group-hover:[animation-play-state:paused] px-4 items-center will-change-transform">
           {marqueeReviews.map((review, idx) =>
             review.source === "video_manual" ? (
               /* 3D FLIP VIDEO CARD */
@@ -320,7 +320,7 @@ export const CustomerReviews = () => {
           0% { transform: translate3d(0, 0, 0); }
           100% { transform: translate3d(calc(-50% - 12px), 0, 0); }
         }
-        .animate-marquee {
+        .reviews-marquee {
           animation: scrollMarquee 45s linear infinite;
         }
       `}</style>

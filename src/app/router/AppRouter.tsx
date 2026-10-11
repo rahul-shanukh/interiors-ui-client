@@ -4,7 +4,6 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "../guards/ProtectedRoute";
 import { CalculatorLayout } from "../../features/calculator/CalculatorLayout";
-// import { DesignIdeas } from "../../pages/SubHeaderList/DesignIdeas";
 import StoreLocator from "../../pages/SubHeaderList/StoreLocator";
 import { ScrollToTop } from "../../shared/ui/ScrollToTop";
 import { PageLoader } from "../../shared/ui/PageLoader";
@@ -57,6 +56,10 @@ const DesignIdeas = lazy(() =>
   })),
 );
 
+const RoomDesignIdeasPage = lazy(() =>
+  import("../../pages/design/RoomDesignIdeasPage"),
+);
+
 export const AppRouter = () => {
   return (
     <BrowserRouter>
@@ -68,7 +71,6 @@ export const AppRouter = () => {
           <Route path="/design-ideas" element={<DesignIdeas />} />
           <Route path="/store-locator" element={<StoreLocator />} />
           <Route path="/about-us" element={<AboutUs />} />
-
           <Route path="/calculator" element={<CalculatorLayout />}>
             <Route path="full-home" element={<FullHomeCalculator />} />
             <Route path="kitchen" element={<KitchenCalculator />} />
@@ -77,7 +79,7 @@ export const AppRouter = () => {
           <Route path="/admin/uploads" element={<UploadsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/unauthorized" element={<div>Access Denied</div>} />
-
+          <Route path="/design-ideas/:room" element={<RoomDesignIdeasPage />} />
           {/* ================= PRIVATE ZONE ================= */}
           <Route element={<ProtectedRoute />}>
             <Route path="/profile" element={<div>My Profile</div>} />
@@ -94,10 +96,8 @@ export const AppRouter = () => {
               <Route path="/workspace" element={<div>My Workspace</div>} />
             </Route>
           </Route>
-
           {/* ✅ Boards route (uses DashboardLayout, so it sits outside MainLayout) */}
           <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}></Route>
-
           {/* FALLBACK */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
